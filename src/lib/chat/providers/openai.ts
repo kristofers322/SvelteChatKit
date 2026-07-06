@@ -1,8 +1,10 @@
 import type { ChatMessage, ChatProvider, ProviderConfig, SendMessageOptions } from '../types.js';
+import { ChatProviderError } from '../types.js';
 import { providerFetch, sseStream } from '../stream.js';
 
 interface CompletionChunk {
 	choices?: { delta?: { content?: unknown } }[];
+	error?: { message?: unknown; code?: unknown };
 }
 
 /**
@@ -53,12 +55,22 @@ export class OpenAICompatibleProvider implements ChatProvider {
 		});
 
 		for await (const payload of sseStream(response)) {
-			if (payload === '[DONE]') return;
+			if (payload.trim() === '[DONE]') return;
 			let chunk: CompletionChunk;
 			try {
 				chunk = JSON.parse(payload) as CompletionChunk;
 			} catch {
 				continue;
+			}
+			// OpenRouter and some gateways deliver mid-stream failures as an
+			// HTTP-200 SSE event of the form {"error": {...}}.
+			if (chunk.error) {
+				const message =
+					typeof chunk.error.message === 'string' && chunk.error.message
+						? chunk.error.message
+						: 'The server reported an error mid-stream.';
+				const status = typeof chunk.error.code === 'number' ? chunk.error.code : undefined;
+				throw new ChatProviderError(this.id, message, status);
 			}
 			const delta = chunk.choices?.[0]?.delta?.content;
 			if (typeof delta === 'string' && delta.length > 0) yield delta;

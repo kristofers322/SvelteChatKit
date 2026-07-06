@@ -4,6 +4,33 @@ import { providerFetch, sseStream } from '../stream.js';
 
 const DIFY_USER_KEY = 'sveltechatkit:dify-user';
 
+function readStorage(key: string): string | null {
+	if (typeof localStorage === 'undefined') return null;
+	try {
+		return localStorage.getItem(key);
+	} catch {
+		return null;
+	}
+}
+
+function writeStorage(key: string, value: string): void {
+	if (typeof localStorage === 'undefined') return;
+	try {
+		localStorage.setItem(key, value);
+	} catch {
+		// Storage unavailable; the conversation id stays in-memory only.
+	}
+}
+
+function removeStorage(key: string): void {
+	if (typeof localStorage === 'undefined') return;
+	try {
+		localStorage.removeItem(key);
+	} catch {
+		// Storage unavailable; nothing to remove.
+	}
+}
+
 interface DifyEvent {
 	event?: unknown;
 	answer?: unknown;
@@ -16,7 +43,10 @@ interface DifyEvent {
  * Streams answers from a Dify chat app (`/chat-messages`). Dify is
  * conversation-based rather than messages-array-based, so this provider
  * sends only the latest user message as the query and keeps Dify's
- * conversation id as instance state; `reset()` starts a new conversation.
+ * conversation id; `reset()` starts a new conversation. The conversation id
+ * is persisted to localStorage (keyed by base URL and a key hint) so the
+ * conversation survives page reloads and provider re-instantiation — in step
+ * with the kit's persisted message history.
  */
 export class DifyProvider implements ChatProvider {
 	readonly id = 'dify';
@@ -25,6 +55,7 @@ export class DifyProvider implements ChatProvider {
 	private readonly baseUrl: string;
 	private readonly apiKey?: string;
 	private readonly headers: Record<string, string>;
+	private readonly conversationKey: string;
 	private conversationId: string | null = null;
 	private anonUser: string | null = null;
 
@@ -33,13 +64,41 @@ export class DifyProvider implements ChatProvider {
 		this.baseUrl = (config.baseUrl ?? 'https://api.dify.ai/v1').replace(/\/+$/, '');
 		this.apiKey = config.apiKey;
 		this.headers = config.headers ?? {};
+		this.conversationKey = `sveltechatkit:dify-conversation:${this.baseUrl}:${
+			this.apiKey ? this.apiKey.slice(-4) : 'anon'
+		}`;
+		this.conversationId = readStorage(this.conversationKey);
 	}
 
 	reset(): void {
 		this.conversationId = null;
+		removeStorage(this.conversationKey);
 	}
 
 	async *sendMessage(
+		messages: ChatMessage[],
+		options: SendMessageOptions = {}
+	): AsyncGenerator<string, void, unknown> {
+		try {
+			yield* this.stream(messages, options);
+		} catch (error) {
+			// A persisted conversation id can go stale (deleted app-side);
+			// Dify answers 404. Start a fresh conversation and retry once —
+			// safe because the 404 arrives before anything is yielded.
+			if (
+				error instanceof ChatProviderError &&
+				error.status === 404 &&
+				this.conversationId !== null
+			) {
+				this.reset();
+				yield* this.stream(messages, options);
+				return;
+			}
+			throw error;
+		}
+	}
+
+	private async *stream(
 		messages: ChatMessage[],
 		options: SendMessageOptions = {}
 	): AsyncGenerator<string, void, unknown> {
@@ -82,7 +141,10 @@ export class DifyProvider implements ChatProvider {
 				continue;
 			}
 			if (typeof event.conversation_id === 'string' && event.conversation_id) {
-				this.conversationId = event.conversation_id;
+				if (this.conversationId !== event.conversation_id) {
+					this.conversationId = event.conversation_id;
+					writeStorage(this.conversationKey, event.conversation_id);
+				}
 			}
 			if (event.event === 'error') {
 				const detail =

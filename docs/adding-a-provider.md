@@ -76,26 +76,37 @@ export class AnthropicProvider implements ChatProvider {
 			.filter((m) => m.role !== 'system')
 			.map((m) => ({ role: m.role, content: m.content }));
 
-		const response = await fetch(`${baseUrl}/messages`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'x-api-key': this.#config.apiKey ?? '',
-				'anthropic-version': '2023-06-01',
-				// Anthropic rejects browser-origin requests unless you opt in.
-				// Acceptable for local development; use a server proxy in production.
-				'anthropic-dangerous-direct-browser-access': 'true',
-				...this.#config.headers
-			},
-			body: JSON.stringify({
-				model: options?.model ?? this.#config.model ?? 'claude-opus-4-8',
-				max_tokens: options?.maxTokens ?? 4096,
-				...(system ? { system } : {}),
-				messages: turns,
-				stream: true
-			}),
-			signal: options?.signal
-		});
+		let response: Response;
+		try {
+			response = await fetch(`${baseUrl}/messages`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'x-api-key': this.#config.apiKey ?? '',
+					'anthropic-version': '2023-06-01',
+					// Anthropic rejects browser-origin requests unless you opt in.
+					// Acceptable for local development; use a server proxy in production.
+					'anthropic-dangerous-direct-browser-access': 'true',
+					...this.#config.headers
+				},
+				body: JSON.stringify({
+					model: options?.model ?? this.#config.model ?? 'claude-opus-4-8',
+					max_tokens: options?.maxTokens ?? 4096,
+					...(system ? { system } : {}),
+					messages: turns,
+					stream: true
+				}),
+				signal: options?.signal
+			});
+		} catch (error) {
+			// Aborts propagate as-is; connection failures become readable errors.
+			if (error instanceof Error && error.name === 'AbortError') throw error;
+			const detail = error instanceof Error ? error.message : String(error);
+			throw new ChatProviderError(
+				this.id,
+				`Could not reach ${baseUrl} (${detail}). Check the URL and CORS settings.`
+			);
+		}
 
 		await ensureOk(response, this.id);
 

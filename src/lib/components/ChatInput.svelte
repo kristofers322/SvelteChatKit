@@ -41,7 +41,7 @@
 	}}
 >
 	<div
-		class="flex items-end gap-2 rounded-xl border border-zinc-200 bg-white p-1.5 transition-colors focus-within:border-zinc-400 dark:border-zinc-800 dark:bg-zinc-900 dark:focus-within:border-zinc-600"
+		class="flex items-end gap-2 rounded-xl border border-zinc-200 bg-white p-1.5 transition-colors focus-within:border-zinc-400 focus-within:ring-2 focus-within:ring-zinc-900/10 dark:border-zinc-800 dark:bg-zinc-900 dark:focus-within:border-zinc-600 dark:focus-within:ring-white/10"
 	>
 		<textarea
 			bind:this={textarea}

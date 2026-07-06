@@ -28,13 +28,13 @@ SvelteChatKit is a complete, streaming chat interface for SvelteKit 2 and Svelte
 
 ## Supported providers
 
-| Provider | `id` | Works with | Transport | Config |
-| --- | --- | --- | --- | --- |
-| OpenAI-compatible | `openai` | OpenAI, OpenRouter, Groq, LM Studio, vLLM, llama.cpp, Azure-style gateways | SSE (`POST {baseUrl}/chat/completions`) | `baseUrl`, `apiKey`, `model` |
-| Ollama | `ollama` | Local models via Ollama | NDJSON (`POST {baseUrl}/api/chat`) | `baseUrl`, `model` — browser use requires `OLLAMA_ORIGINS` |
-| Dify | `dify` | Dify chat apps (conversation-based) | SSE (`POST {baseUrl}/chat-messages`) | `baseUrl`, `apiKey` |
-| Custom endpoint | `custom` | Your own backend or server proxy | Auto-detected: SSE, streamed text, or plain body | `baseUrl` (full endpoint URL), `headers` |
-| Mock | `mock` | Demo mode — no network calls | — | none |
+| Provider          | `id`     | Works with                                                                 | Transport                                        | Config                                                     |
+| ----------------- | -------- | -------------------------------------------------------------------------- | ------------------------------------------------ | ---------------------------------------------------------- |
+| OpenAI-compatible | `openai` | OpenAI, OpenRouter, Groq, LM Studio, vLLM, llama.cpp, Azure-style gateways | SSE (`POST {baseUrl}/chat/completions`)          | `baseUrl`, `apiKey`, `model`                               |
+| Ollama            | `ollama` | Local models via Ollama                                                    | NDJSON (`POST {baseUrl}/api/chat`)               | `baseUrl`, `model` — browser use requires `OLLAMA_ORIGINS` |
+| Dify              | `dify`   | Dify chat apps (conversation-based)                                        | SSE (`POST {baseUrl}/chat-messages`)             | `baseUrl`, `apiKey`                                        |
+| Custom endpoint   | `custom` | Your own backend or server proxy                                           | Auto-detected: SSE, streamed text, or plain body | `baseUrl` (full endpoint URL), `headers`                   |
+| Mock              | `mock`   | Demo mode — no network calls                                               | —                                                | none                                                       |
 
 ## Quick start
 
@@ -113,17 +113,17 @@ For a complete walkthrough — including a working Anthropic provider — see [d
 
 The demo reads `PUBLIC_*` variables from `.env` (see `.env.example`). All are optional; with no `.env` at all the demo runs on the mock provider.
 
-| Variable | Default | Description |
-| --- | --- | --- |
-| `PUBLIC_DEFAULT_PROVIDER` | `mock` | Provider selected on load: `mock` \| `openai` \| `ollama` \| `dify` \| `custom` |
-| `PUBLIC_OPENAI_BASE_URL` | `https://api.openai.com/v1` | Any OpenAI-compatible base URL |
-| `PUBLIC_OPENAI_API_KEY` | — | API key sent as `Authorization: Bearer …` |
-| `PUBLIC_OPENAI_MODEL` | `gpt-4o-mini` | Default model |
-| `PUBLIC_DIFY_BASE_URL` | `https://api.dify.ai/v1` | Dify API base URL |
-| `PUBLIC_DIFY_API_KEY` | — | Dify app API key |
-| `PUBLIC_OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama server URL |
-| `PUBLIC_OLLAMA_MODEL` | `llama3.1` | Default Ollama model |
-| `PUBLIC_CUSTOM_ENDPOINT` | — | Full URL of your own chat endpoint |
+| Variable                  | Default                     | Description                                                                     |
+| ------------------------- | --------------------------- | ------------------------------------------------------------------------------- |
+| `PUBLIC_DEFAULT_PROVIDER` | `mock`                      | Provider selected on load: `mock` \| `openai` \| `ollama` \| `dify` \| `custom` |
+| `PUBLIC_OPENAI_BASE_URL`  | `https://api.openai.com/v1` | Any OpenAI-compatible base URL                                                  |
+| `PUBLIC_OPENAI_API_KEY`   | —                           | API key sent as `Authorization: Bearer …`                                       |
+| `PUBLIC_OPENAI_MODEL`     | `gpt-4o-mini`               | Default model                                                                   |
+| `PUBLIC_DIFY_BASE_URL`    | `https://api.dify.ai/v1`    | Dify API base URL                                                               |
+| `PUBLIC_DIFY_API_KEY`     | —                           | Dify app API key                                                                |
+| `PUBLIC_OLLAMA_BASE_URL`  | `http://localhost:11434`    | Ollama server URL                                                               |
+| `PUBLIC_OLLAMA_MODEL`     | `llama3.1`                  | Default Ollama model                                                            |
+| `PUBLIC_CUSTOM_ENDPOINT`  | —                           | Full URL of your own chat endpoint                                              |
 
 > **A note on keys:** `PUBLIC_*` variables are embedded in the client bundle and visible to anyone using your site. They're fine for local development, but in production keep keys server-side: point the [custom endpoint provider](docs/adding-a-provider.md) at a small proxy route that adds the `Authorization` header on the server.
 
@@ -131,8 +131,8 @@ The demo reads `PUBLIC_*` variables from `.env` (see `.env.example`). All are op
 
 The demo app running on the built-in mock provider — no API key required.
 
-| Light | Dark |
-| --- | --- |
+| Light                                                  | Dark                                                 |
+| ------------------------------------------------------ | ---------------------------------------------------- |
 | ![SvelteChatKit light mode](docs/screenshot-light.png) | ![SvelteChatKit dark mode](docs/screenshot-dark.png) |
 
 ## Architecture
@@ -162,17 +162,17 @@ The demo app running on the built-in mock provider — no API key required.
               (upstream chat APIs)
 ```
 
-| Module | Purpose |
-| --- | --- |
-| `src/lib/chat/types.ts` | Core contracts: `ChatMessage`, `ChatProvider`, `ProviderConfig`, `ChatProviderError` |
-| `src/lib/chat/chat.svelte.ts` | `Chat` runes state class: send/stop/clear, streaming loop, persistence |
-| `src/lib/chat/providers/` | Provider registry (`registerProvider`, `createProvider`) + five built-ins |
-| `src/lib/chat/stream.ts` | Transport helpers: `sseStream`, `lineStream`, `textStream`, `ensureOk` |
-| `src/lib/chat/config.ts` | `defineChatKitConfig` + env-driven `defaultConfig` |
-| `src/lib/chat/markdown.ts` | `renderMarkdown`: marked + highlight.js + DOMPurify |
-| `src/lib/chat/storage.ts` | SSR-safe `localStorage` history persistence |
-| `src/lib/components/` | The six UI components |
-| `src/routes/` | Demo app (provider switcher, connection settings, chat) |
+| Module                        | Purpose                                                                              |
+| ----------------------------- | ------------------------------------------------------------------------------------ |
+| `src/lib/chat/types.ts`       | Core contracts: `ChatMessage`, `ChatProvider`, `ProviderConfig`, `ChatProviderError` |
+| `src/lib/chat/chat.svelte.ts` | `Chat` runes state class: send/stop/clear, streaming loop, persistence               |
+| `src/lib/chat/providers/`     | Provider registry (`registerProvider`, `createProvider`) + five built-ins            |
+| `src/lib/chat/stream.ts`      | Transport helpers: `sseStream`, `lineStream`, `textStream`, `ensureOk`               |
+| `src/lib/chat/config.ts`      | `defineChatKitConfig` + env-driven `defaultConfig`                                   |
+| `src/lib/chat/markdown.ts`    | `renderMarkdown`: marked + highlight.js + DOMPurify                                  |
+| `src/lib/chat/storage.ts`     | SSR-safe `localStorage` history persistence                                          |
+| `src/lib/components/`         | The six UI components                                                                |
+| `src/routes/`                 | Demo app (provider switcher, connection settings, chat)                              |
 
 ## Roadmap
 

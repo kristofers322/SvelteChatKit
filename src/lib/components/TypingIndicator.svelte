@@ -1,4 +1,8 @@
-<div class="flex items-center gap-1 py-1 text-zinc-400 dark:text-zinc-500" role="status" aria-label="Assistant is typing">
+<div
+	class="flex items-center gap-1 py-1 text-zinc-400 dark:text-zinc-500"
+	role="status"
+	aria-label="Assistant is typing"
+>
 	<span class="typing-dot h-1.5 w-1.5 rounded-full bg-current"></span>
 	<span class="typing-dot h-1.5 w-1.5 rounded-full bg-current"></span>
 	<span class="typing-dot h-1.5 w-1.5 rounded-full bg-current"></span>

@@ -51,7 +51,8 @@ export async function* lineStream(response: Response): AsyncGenerator<string> {
 }
 
 /**
- * Yields the payload of each Server-Sent Event `data:` field (trimmed),
+ * Yields the payload of each Server-Sent Event `data:` field verbatim
+ * (whitespace preserved — raw-text token streams carry significant spaces),
  * skipping comments and events without data. Multi-line `data:` fields are
  * joined with newlines, and events split across network chunks are
  * reassembled correctly.
@@ -61,9 +62,9 @@ export async function* sseStream(response: Response): AsyncGenerator<string> {
 
 	const flush = (): string | null => {
 		if (dataLines.length === 0) return null;
-		const payload = dataLines.join('\n').trim();
+		const payload = dataLines.join('\n');
 		dataLines = [];
-		return payload.length > 0 ? payload : null;
+		return payload;
 	};
 
 	for await (const line of lineStream(response)) {

@@ -14,7 +14,9 @@
 
 <div class="flex min-h-0 flex-col {className}">
 	{#if isEmpty}
-		<div class="flex min-h-0 flex-1 flex-col items-center justify-center gap-1.5 px-6 py-10 text-center">
+		<div
+			class="flex min-h-0 flex-1 flex-col items-center justify-center gap-1.5 px-6 py-10 text-center"
+		>
 			<svg
 				class="mb-2 h-10 w-10 text-zinc-300 dark:text-zinc-700"
 				viewBox="0 0 24 24"

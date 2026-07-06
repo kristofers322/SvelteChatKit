@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { slide } from 'svelte/transition';
 	import {
 		Chat,
 		ChatWindow,
@@ -19,10 +20,20 @@
 	function loadSettings(): StoredSettings {
 		try {
 			const raw = localStorage.getItem(SETTINGS_KEY);
-			return raw ? (JSON.parse(raw) as StoredSettings) : {};
+			if (!raw) return {};
+			const parsed: unknown = JSON.parse(raw);
+			if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+				return parsed as StoredSettings;
+			}
 		} catch {
-			return {};
+			// Corrupt JSON; fall through and self-heal below.
 		}
+		try {
+			localStorage.removeItem(SETTINGS_KEY);
+		} catch {
+			/* storage unavailable */
+		}
+		return {};
 	}
 
 	const providerOptions = getRegisteredProviders();
@@ -59,7 +70,13 @@
 		return config;
 	}
 
-	const chat = new Chat(createProvider(buildConfig()), { storageKey: HISTORY_KEY });
+	function configKey(config: ProviderConfig): string {
+		return JSON.stringify([config.id, config.model, config.baseUrl, config.apiKey]);
+	}
+
+	const initialConfig = buildConfig();
+	const chat = new Chat(createProvider(initialConfig), { storageKey: HISTORY_KEY });
+	let activeConfigKey = configKey(initialConfig);
 
 	function selectProvider(id: string): void {
 		providerId = id;
@@ -70,7 +87,7 @@
 	}
 
 	$effect(() => {
-		chat.setProvider(createProvider(buildConfig()));
+		const config = buildConfig();
 		sessionKeys[providerId] = apiKey;
 		overrides[providerId] = {
 			model: model.trim() || undefined,
@@ -80,6 +97,13 @@
 			localStorage.setItem(SETTINGS_KEY, JSON.stringify({ provider: providerId, overrides }));
 		} catch {
 			/* storage unavailable */
+		}
+		// Only swap the provider when the effective config actually changed —
+		// recreating on every keystroke would discard provider-side state.
+		const key = configKey(config);
+		if (key !== activeConfigKey) {
+			activeConfigKey = key;
+			chat.setProvider(createProvider(config));
 		}
 	});
 
@@ -134,7 +158,9 @@
 		</div>
 	</header>
 
-	<main class="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col gap-3 px-4 py-3 sm:gap-4 sm:px-6 sm:py-4">
+	<main
+		class="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col gap-3 px-4 py-3 sm:gap-4 sm:px-6 sm:py-4"
+	>
 		<section
 			class="shrink-0 rounded-xl border border-zinc-200 bg-white p-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-950"
 			aria-label="Chat settings"
@@ -142,15 +168,29 @@
 			<div class="flex flex-wrap items-end gap-3">
 				<label class="flex min-w-[9rem] flex-1 flex-col gap-1.5">
 					<span class={labelClass}>Provider</span>
-					<select
-						value={providerId}
-						onchange={(event) => selectProvider(event.currentTarget.value)}
-						class={fieldClass}
-					>
-						{#each providerOptions as option (option.id)}
-							<option value={option.id}>{option.label}</option>
-						{/each}
-					</select>
+					<div class="relative">
+						<select
+							value={providerId}
+							onchange={(event) => selectProvider(event.currentTarget.value)}
+							class="{fieldClass} appearance-none pr-8"
+						>
+							{#each providerOptions as option (option.id)}
+								<option value={option.id}>{option.label}</option>
+							{/each}
+						</select>
+						<svg
+							class="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400 dark:text-zinc-500"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							aria-hidden="true"
+						>
+							<path d="m6 9 6 6 6-6" />
+						</svg>
+					</div>
 				</label>
 				<label class="flex min-w-[9rem] flex-1 flex-col gap-1.5">
 					<span class={labelClass}>Model</span>
@@ -195,7 +235,11 @@
 					Connection settings
 				</button>
 				{#if showConnection}
-					<div id="connection-settings" class="mt-3 grid gap-3 sm:grid-cols-2">
+					<div
+						id="connection-settings"
+						class="mt-3 grid gap-3 sm:grid-cols-2"
+						transition:slide={{ duration: 150 }}
+					>
 						<label class="flex flex-col gap-1.5">
 							<span class={labelClass}>Base URL</span>
 							<input

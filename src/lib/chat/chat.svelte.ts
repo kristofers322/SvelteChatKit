@@ -27,6 +27,7 @@ export class Chat {
 	readonly #isBusy = $derived(this.status === 'streaming');
 
 	#controller: AbortController | null = null;
+	#persistTimer: ReturnType<typeof setTimeout> | null = null;
 	readonly #storageKey: string | null;
 	readonly #systemPrompt?: string;
 	readonly #model?: string;
@@ -76,7 +77,7 @@ export class Chat {
 			});
 		}
 		for (const message of this.messages) {
-			if (message.error || message.id === assistantId) continue;
+			if (message.error || message.content === '' || message.id === assistantId) continue;
 			history.push({
 				id: message.id,
 				role: message.role,
@@ -95,7 +96,8 @@ export class Chat {
 			for await (const chunk of this.provider.sendMessage(history, options)) {
 				if (chunk === '') continue;
 				assistant.content += chunk;
-				this.#commit();
+				this.#schedulePersist();
+				this.#onUpdate?.(this.messages);
 			}
 			aborted = controller.signal.aborted;
 		} catch (error) {
@@ -103,16 +105,24 @@ export class Chat {
 				aborted = true;
 			} else {
 				failed = true;
-				const message = error instanceof Error ? error.message : String(error);
-				assistant.error = message;
-				this.error = message;
+				assistant.error = error instanceof Error ? error.message : String(error);
 			}
 		}
 
-		if (aborted && assistant.content === '') {
-			const index = this.messages.findIndex((message) => message.id === assistantId);
-			if (index !== -1) this.messages.splice(index, 1);
+		// clear() or a newer send() owns the session state now; this run must
+		// not touch status, error, the controller, or storage.
+		if (this.#controller !== controller) return;
+
+		if (assistant.content === '') {
+			if (aborted) {
+				const index = this.messages.findIndex((message) => message.id === assistantId);
+				if (index !== -1) this.messages.splice(index, 1);
+			} else if (!failed) {
+				failed = true;
+				assistant.error = 'The provider returned an empty response.';
+			}
 		}
+		if (failed) this.error = assistant.error ?? null;
 
 		this.status = failed ? 'error' : 'idle';
 		this.#controller = null;
@@ -127,6 +137,8 @@ export class Chat {
 	/** Clears the history, persisted storage, and provider-side state. */
 	clear(): void {
 		this.#controller?.abort();
+		this.#controller = null;
+		this.#cancelScheduledPersist();
 		this.messages = [];
 		this.status = 'idle';
 		this.error = null;
@@ -141,7 +153,27 @@ export class Chat {
 	}
 
 	#commit(): void {
+		this.#cancelScheduledPersist();
 		if (this.#storageKey) saveMessages(this.#storageKey, this.messages);
 		this.#onUpdate?.(this.messages);
+	}
+
+	// Persisting the full history on every streamed chunk is O(history) of
+	// synchronous work per token; a trailing throttle keeps crash-resilience
+	// without competing with rendering. Terminal states persist immediately.
+	#schedulePersist(): void {
+		const key = this.#storageKey;
+		if (!key || this.#persistTimer !== null) return;
+		this.#persistTimer = setTimeout(() => {
+			this.#persistTimer = null;
+			saveMessages(key, this.messages);
+		}, 250);
+	}
+
+	#cancelScheduledPersist(): void {
+		if (this.#persistTimer !== null) {
+			clearTimeout(this.#persistTimer);
+			this.#persistTimer = null;
+		}
 	}
 }

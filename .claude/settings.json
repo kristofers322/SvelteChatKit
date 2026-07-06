@@ -1,17 +1,17 @@
 {
-  "permissions": {
-    "allow": [
-      "Bash(node -e \"const d = new DOMException\\('x','AbortError'\\); console.log\\('DOMException instanceof Error:', d instanceof Error, d.name\\);\")",
-      "Bash(grep -E '^\\(tsx|vitest|esbuild\\)$')",
-      "Bash(awk 'NR>40580 && NR<41200 && \\(/hasEnv/ || /getEnv/ || /import\\\\.meta/\\)' /Users/kristofer/Desktop/SvelteChatKit/node_modules/vite/dist/node/chunks/dep-Dm0c1Wj2.js)",
-      "Bash(npm init *)",
-      "Bash(npm install *)",
-      "Bash(sed -e 's/= \\\\$state\\(\\\\[\\\\]\\)/= []/' -e 's/= $state\\('\\\\''idle'\\\\''\\)/= '\\\\''idle'\\\\''/' -e 's/= \\\\$state\\(null\\)/= null/' -e 's/provider: ChatProvider = \\\\$state\\(\\)!;/provider!: ChatProvider;/' -e 's/readonly #isBusy = \\\\$derived\\(this.status === .streaming.\\);/get #isBusy\\(\\) { return this.status === \"streaming\"; }/' /Users/kristofer/Desktop/SvelteChatKit/src/lib/chat/chat.svelte.ts)",
-      "Bash(grep -n '\\\\$state\\\\|\\\\$derived' chat.plain.ts)",
-      "Bash(/Users/kristofer/Desktop/SvelteChatKit/node_modules/.bin/esbuild chat.plain.ts --bundle --format=esm --outfile=chat.bundle.mjs --platform=neutral --external:svelte)",
-      "Bash(node race.test.mjs)",
-      "Bash(node purify-test.mjs)",
-      "Bash(grep -o 'function [a-zA-Z_$]*\\(.\\\\{0,40\\\\}\\\\benv\\\\b.\\\\{0,120\\\\}' /Users/kristofer/Desktop/SvelteChatKit/.svelte-kit/output/client/_app/immutable/nodes/2.-AAuHTc6.js)"
-    ]
-  }
+	"permissions": {
+		"allow": [
+			"Bash(node -e \"const d = new DOMException\\('x','AbortError'\\); console.log\\('DOMException instanceof Error:', d instanceof Error, d.name\\);\")",
+			"Bash(grep -E '^\\(tsx|vitest|esbuild\\)$')",
+			"Bash(awk 'NR>40580 && NR<41200 && \\(/hasEnv/ || /getEnv/ || /import\\\\.meta/\\)' /Users/kristofer/Desktop/SvelteChatKit/node_modules/vite/dist/node/chunks/dep-Dm0c1Wj2.js)",
+			"Bash(npm init *)",
+			"Bash(npm install *)",
+			"Bash(sed -e 's/= \\\\$state\\(\\\\[\\\\]\\)/= []/' -e 's/= $state\\('\\\\''idle'\\\\''\\)/= '\\\\''idle'\\\\''/' -e 's/= \\\\$state\\(null\\)/= null/' -e 's/provider: ChatProvider = \\\\$state\\(\\)!;/provider!: ChatProvider;/' -e 's/readonly #isBusy = \\\\$derived\\(this.status === .streaming.\\);/get #isBusy\\(\\) { return this.status === \"streaming\"; }/' /Users/kristofer/Desktop/SvelteChatKit/src/lib/chat/chat.svelte.ts)",
+			"Bash(grep -n '\\\\$state\\\\|\\\\$derived' chat.plain.ts)",
+			"Bash(/Users/kristofer/Desktop/SvelteChatKit/node_modules/.bin/esbuild chat.plain.ts --bundle --format=esm --outfile=chat.bundle.mjs --platform=neutral --external:svelte)",
+			"Bash(node race.test.mjs)",
+			"Bash(node purify-test.mjs)",
+			"Bash(grep -o 'function [a-zA-Z_$]*\\(.\\\\{0,40\\\\}\\\\benv\\\\b.\\\\{0,120\\\\}' /Users/kristofer/Desktop/SvelteChatKit/.svelte-kit/output/client/_app/immutable/nodes/2.-AAuHTc6.js)"
+		]
+	}
 }

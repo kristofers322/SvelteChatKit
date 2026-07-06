@@ -16,6 +16,7 @@ Before opening a PR, make sure both pass clean:
 
 ```bash
 npm run check   # svelte-check + TypeScript
+npm run lint    # Prettier formatting check
 npm run build
 ```
 
@@ -41,7 +42,7 @@ docs/                    guides
 
 ## Code style
 
-- **Prettier defaults with tabs** for indentation — match the existing files.
+- **Prettier** is wired up (tabs, single quotes, 100-column lines) — run `npm run format` before committing; `npm run lint` checks formatting in CI-style.
 - **TypeScript strict**; no `any` unless there is genuinely no better type.
 - Imports between `.ts` modules inside `src/lib` use relative `./x.js` specifiers (bundler resolution).
 - JSDoc on public API only; skip narrating comments inside function bodies.
@@ -69,7 +70,7 @@ Checklist for provider PRs:
 
 ## Commit style
 
-Short imperative subject lines ("Add Anthropic provider", "Fix scroll pill flicker"), with an optional body explaining *why*. Conventional-commit prefixes (`feat:`, `fix:`, `docs:`) are appreciated but not required.
+Short imperative subject lines ("Add Anthropic provider", "Fix scroll pill flicker"), with an optional body explaining _why_. Conventional-commit prefixes (`feat:`, `fix:`, `docs:`) are appreciated but not required.
 
 ## Reporting bugs
 

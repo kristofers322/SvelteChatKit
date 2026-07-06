@@ -38,6 +38,15 @@ function escapeHtml(text: string): string {
 		.replace(/'/g, '&#39;');
 }
 
+// Assistant output is untrusted (prompt injection via RAG/tools/web content
+// reaches it), so beyond DOMPurify's XSS defaults we also strip what enables
+// phishing UI: form controls, style elements/attributes, and SVG/MathML.
+const SANITIZE_CONFIG = {
+	USE_PROFILES: { html: true },
+	FORBID_TAGS: ['form', 'input', 'button', 'select', 'textarea', 'style'],
+	FORBID_ATTR: ['style']
+};
+
 /**
  * Renders markdown to sanitized HTML. Fenced code blocks receive highlight.js
  * classes ("hljs language-x"), and links open in a new tab with
@@ -49,5 +58,5 @@ export function renderMarkdown(source: string): string {
 		return escapeHtml(source);
 	}
 	const html = marked.parse(source, { async: false }) as string;
-	return DOMPurify.sanitize(html);
+	return DOMPurify.sanitize(html, SANITIZE_CONFIG);
 }
