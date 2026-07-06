@@ -129,7 +129,7 @@ The demo reads `PUBLIC_*` variables from `.env` (see `.env.example`). All are op
 
 ## Screenshots
 
-> Placeholder images — replace `docs/screenshot-light.png` and `docs/screenshot-dark.png` with captures of your deployment.
+The demo app running on the built-in mock provider — no API key required.
 
 | Light | Dark |
 | --- | --- |

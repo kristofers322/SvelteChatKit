@@ -98,7 +98,7 @@
 
 <div class="flex h-dvh flex-col">
 	<header
-		class="shrink-0 border-b border-zinc-200 bg-zinc-50/80 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/80"
+		class="shrink-0 border-b border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950"
 	>
 		<div class="mx-auto flex h-14 w-full max-w-3xl items-center justify-between px-4 sm:px-6">
 			<div class="flex items-center gap-2.5">
