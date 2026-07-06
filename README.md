@@ -2,7 +2,7 @@
 
 # SvelteChatKit
 
-**A universal, provider-agnostic AI chat UI kit for SvelteKit.**
+**AI chat UI for SvelteKit that works with any backend.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Svelte 5](https://img.shields.io/badge/Svelte-5-ff3e00.svg)](https://svelte.dev)
@@ -13,91 +13,51 @@
 
 </div>
 
-SvelteChatKit is a complete, streaming chat interface for SvelteKit 2 and Svelte 5 (runes) that talks to any LLM backend through one small interface. Swap between OpenAI-compatible APIs, Ollama, Dify, or your own endpoint by changing a config object — the UI, state management, markdown rendering, and persistence stay exactly the same. If your chat UI shouldn't be married to one vendor's API shape, this is the kit for you.
+One chat UI, any LLM. Swap between OpenAI, Ollama, Dify, n8n or your own API by changing a config object — streaming, markdown, history and the UI stay the same. Svelte 5 + SvelteKit 2, TypeScript, MIT.
 
-## Features
+## What you get
 
-- **Streaming responses** — token-by-token rendering over SSE, NDJSON, or raw text streams, with a stop button that aborts cleanly mid-stream
-- **Provider-agnostic** — one `ChatProvider` interface; add a new backend without touching kit code
-- **Persistence** — conversation history survives reloads via `localStorage` (opt-in, SSR-safe)
-- **Markdown + syntax highlighting** — GFM rendering with highlight.js code blocks, sanitized with DOMPurify
-- **Smart auto-scroll** — follows the stream while you're near the bottom, never yanks the view when you scroll up, floating scroll-to-bottom pill
-- **Error handling** — typed `ChatProviderError` with actionable messages, dismissable inline error banner, per-message error states
-- **Mobile responsive** — usable at 375px, 16px inputs (no iOS zoom), auto-growing textarea
-- **Dark mode** — coherent light/dark styling via Tailwind `dark:` variants
-- **TypeScript strict** — fully typed public API
-- **Zero-config demo mode** — a built-in mock provider streams canned markdown responses with no API key, so `npm run dev` just works
+- Token-by-token streaming with a stop button that actually aborts
+- One small `ChatProvider` interface — your own backend in ~20 lines
+- Chat history that survives reloads (localStorage)
+- Markdown with syntax-highlighted code blocks, sanitized
+- Auto-scroll that follows the stream but never yanks the view while you read
+- Errors surfaced where you can see them, not swallowed
+- Dark mode, mobile friendly, fully typed
+- Runs with zero config — the built-in demo provider needs no API key
 
-## Supported providers
+## Providers
 
-| Provider          | `id`     | Works with                                                                 | Transport                                        | Config                                                     |
-| ----------------- | -------- | -------------------------------------------------------------------------- | ------------------------------------------------ | ---------------------------------------------------------- |
-| OpenAI-compatible | `openai` | OpenAI, OpenRouter, Groq, LM Studio, vLLM, llama.cpp, Azure-style gateways | SSE (`POST {baseUrl}/chat/completions`)          | `baseUrl`, `apiKey`, `model`                               |
-| Ollama            | `ollama` | Local models via Ollama                                                    | NDJSON (`POST {baseUrl}/api/chat`)               | `baseUrl`, `model` — browser use requires `OLLAMA_ORIGINS` |
-| Dify              | `dify`   | Dify chat apps (conversation-based)                                        | SSE (`POST {baseUrl}/chat-messages`)             | `baseUrl`, `apiKey`                                        |
-| n8n               | `n8n`    | n8n workflows behind a Chat Trigger node                                   | NDJSON chunks (streaming mode) or JSON body      | `baseUrl` (chat webhook URL), `headers` for Basic Auth     |
-| Custom endpoint   | `custom` | Your own backend or server proxy                                           | Auto-detected: SSE, streamed text, or plain body | `baseUrl` (full endpoint URL), `headers`                   |
-| Mock              | `mock`   | Demo mode — no network calls                                               | —                                                | none                                                       |
+| `id`     | Works with                                                  | Needs                                     |
+| -------- | ----------------------------------------------------------- | ----------------------------------------- |
+| `openai` | OpenAI, OpenRouter, Groq, LM Studio, vLLM, llama.cpp, …     | `baseUrl`, `apiKey`, `model`              |
+| `ollama` | Local models via Ollama                                     | `baseUrl` (+ `OLLAMA_ORIGINS` in browser) |
+| `dify`   | Dify chat apps                                              | `baseUrl`, `apiKey`                       |
+| `n8n`    | n8n workflows behind a Chat Trigger                         | `baseUrl` = chat webhook URL              |
+| `custom` | Your own endpoint or proxy (SSE, streamed text, plain JSON) | `baseUrl`                                 |
+| `mock`   | Demo mode, no network                                       | nothing                                   |
 
-## Quick start
-
-### Try the demo
+## Try it
 
 ```bash
 git clone https://github.com/kristofers322/SvelteChatKit.git
 cd SvelteChatKit
-
-npm install        # or: pnpm install
-cp .env.example .env
-npm run dev        # or: pnpm dev
+npm install
+npm run dev
 ```
 
-Open the printed URL and start chatting — the demo runs on the mock provider out of the box, no keys required. Fill in `.env` to point it at a real backend. Node 20+ required.
+Works out of the box on the mock provider. Copy `.env.example` to `.env` to point it at a real backend. Node 20+.
 
-### Install in your app
+## Use it in your app
 
 ```bash
-npm install sveltechatkit    # or: pnpm add sveltechatkit
+npm install sveltechatkit
 ```
-
-The components are styled with Tailwind utilities (v3 and v4 are both supported), so your app needs two things:
-
-1. Import the kit stylesheet once (code blocks, tables, syntax-highlighting theme) — e.g. in `+layout.svelte`:
-
-   ```ts
-   import 'sveltechatkit/styles.css';
-   ```
-
-2. Tell Tailwind to scan the package and enable the typography plugin. **This step is load-bearing** — Tailwind does not scan `node_modules` on its own, so skipping it leaves the components unstyled.
-
-   **Tailwind v4** (CSS-first config) — in your main CSS file (paths are relative to it):
-
-   ```css
-   @import 'tailwindcss';
-   @plugin '@tailwindcss/typography';
-   @source '../node_modules/sveltechatkit/dist';
-   ```
-
-   **Tailwind v3** — in `tailwind.config.js`:
-
-   ```js
-   import typography from '@tailwindcss/typography';
-
-   export default {
-   	content: ['./src/**/*.{html,js,svelte,ts}', './node_modules/sveltechatkit/dist/**/*.svelte'],
-   	plugins: [typography]
-   };
-   ```
-
-Dark mode in the kit follows `prefers-color-scheme` (`darkMode: 'media'`); if your app uses class-based dark mode the components follow your class strategy, while the shipped stylesheet's dark code styling stays media-based.
-
-## Usage
-
-Create a provider, hand it to a `Chat` instance, and render `ChatWindow`:
 
 ```svelte
 <script lang="ts">
 	import { Chat, ChatWindow, createProvider } from 'sveltechatkit';
+	import 'sveltechatkit/styles.css';
 
 	const provider = createProvider({
 		id: 'openai',
@@ -106,20 +66,38 @@ Create a provider, hand it to a `Chat` instance, and render `ChatWindow`:
 		model: 'gpt-4o-mini'
 	});
 
-	const chat = new Chat(provider, {
-		storageKey: 'my-app:chat-history',
-		systemPrompt: 'You are a concise, helpful assistant.'
-	});
+	const chat = new Chat(provider, { storageKey: 'my-app:chat' });
 </script>
 
 <ChatWindow {chat} placeholder="Ask anything…" />
 ```
 
-`Chat` exposes runes-reactive `messages`, `status`, `error`, and `busy`, plus `send()`, `stop()`, `clear()`, and `setProvider()` — so you can also build a fully custom UI on top of it.
+The components are styled with Tailwind (v3 or v4), and Tailwind doesn't scan `node_modules` on its own — **skip this and they render unstyled**:
 
-### A custom provider in ~20 lines
+**Tailwind v4** — in your main CSS file:
 
-Any object implementing `ChatProvider` works. Register it once and it becomes available through the same factory as the built-ins:
+```css
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+@source '../node_modules/sveltechatkit/dist';
+```
+
+**Tailwind v3** — in `tailwind.config.js`:
+
+```js
+import typography from '@tailwindcss/typography';
+
+export default {
+	content: ['./src/**/*.{html,js,svelte,ts}', './node_modules/sveltechatkit/dist/**/*.svelte'],
+	plugins: [typography]
+};
+```
+
+Don't want the prebuilt UI? `Chat` gives you reactive `messages`, `status`, `error` and `busy` plus `send()`, `stop()`, `clear()`, `setProvider()` — build your own components on top.
+
+## Your own backend
+
+Implement one interface, register it, done:
 
 ```ts
 import { ensureOk, registerProvider, sseStream } from 'sveltechatkit';
@@ -149,38 +127,21 @@ class MyBackendProvider implements ChatProvider {
 registerProvider('my-backend', (config) => new MyBackendProvider(config));
 ```
 
-For a complete walkthrough — including a working Anthropic provider — see [docs/adding-a-provider.md](docs/adding-a-provider.md).
+Full walkthrough with a working Anthropic provider: [docs/adding-a-provider.md](docs/adding-a-provider.md).
 
-## Configuration
+## Config
 
-The demo reads `PUBLIC_*` variables from `.env` (see `.env.example`). All are optional; with no `.env` at all the demo runs on the mock provider.
+The demo reads `PUBLIC_*` vars from `.env` — every variable is listed in [.env.example](.env.example), all optional. In your own app, prefer passing a `ProviderConfig` object directly (like the snippet above); it works with any bundler.
 
-When you consume the kit as a package, prefer building `ProviderConfig` objects explicitly (as in the usage snippet) — it's bundler-agnostic. The env-driven `defaultConfig` relies on Vite's `import.meta.env` and requires `envPrefix: ['VITE_', 'PUBLIC_']` in your Vite config; outside Vite it silently falls back to the built-in defaults.
-
-| Variable                  | Default                     | Description                                                                              |
-| ------------------------- | --------------------------- | ---------------------------------------------------------------------------------------- |
-| `PUBLIC_DEFAULT_PROVIDER` | `mock`                      | Provider selected on load: `mock` \| `openai` \| `ollama` \| `dify` \| `n8n` \| `custom` |
-| `PUBLIC_OPENAI_BASE_URL`  | `https://api.openai.com/v1` | Any OpenAI-compatible base URL                                                           |
-| `PUBLIC_OPENAI_API_KEY`   | —                           | API key sent as `Authorization: Bearer …`                                                |
-| `PUBLIC_OPENAI_MODEL`     | `gpt-4o-mini`               | Default model                                                                            |
-| `PUBLIC_DIFY_BASE_URL`    | `https://api.dify.ai/v1`    | Dify API base URL                                                                        |
-| `PUBLIC_DIFY_API_KEY`     | —                           | Dify app API key                                                                         |
-| `PUBLIC_OLLAMA_BASE_URL`  | `http://localhost:11434`    | Ollama server URL                                                                        |
-| `PUBLIC_OLLAMA_MODEL`     | `llama3.1`                  | Default Ollama model                                                                     |
-| `PUBLIC_N8N_WEBHOOK_URL`  | —                           | n8n Chat Trigger production webhook URL (`…/webhook/<id>/chat`)                          |
-| `PUBLIC_CUSTOM_ENDPOINT`  | —                           | Full URL of your own chat endpoint                                                       |
-
-> **A note on keys:** `PUBLIC_*` variables are embedded in the client bundle and visible to anyone using your site. They're fine for local development, but in production keep keys server-side: point the [custom endpoint provider](docs/adding-a-provider.md) at a small proxy route that adds the `Authorization` header on the server.
+One warning: `PUBLIC_*` vars end up in the client bundle, visible to anyone. Fine locally — in production keep keys on your server and point the `custom` provider at a small proxy route.
 
 ## Screenshots
-
-The demo app running on the built-in mock provider — no API key required.
 
 | Light                                                  | Dark                                                 |
 | ------------------------------------------------------ | ---------------------------------------------------- |
 | ![SvelteChatKit light mode](docs/screenshot-light.png) | ![SvelteChatKit dark mode](docs/screenshot-dark.png) |
 
-## Architecture
+## How it fits together
 
 ```
 ┌──────────────────────────────────────────────────────┐
@@ -207,32 +168,20 @@ The demo app running on the built-in mock provider — no API key required.
                 (upstream chat APIs)
 ```
 
-| Module                        | Purpose                                                                              |
-| ----------------------------- | ------------------------------------------------------------------------------------ |
-| `src/lib/chat/types.ts`       | Core contracts: `ChatMessage`, `ChatProvider`, `ProviderConfig`, `ChatProviderError` |
-| `src/lib/chat/chat.svelte.ts` | `Chat` runes state class: send/stop/clear, streaming loop, persistence               |
-| `src/lib/chat/providers/`     | Provider registry (`registerProvider`, `createProvider`) + six built-ins             |
-| `src/lib/chat/stream.ts`      | Transport helpers: `sseStream`, `lineStream`, `textStream`, `ensureOk`               |
-| `src/lib/chat/config.ts`      | `defineChatKitConfig` + env-driven `defaultConfig`                                   |
-| `src/lib/chat/markdown.ts`    | `renderMarkdown`: marked + highlight.js + DOMPurify                                  |
-| `src/lib/chat/storage.ts`     | SSR-safe `localStorage` history persistence                                          |
-| `src/lib/components/`         | The six UI components                                                                |
-| `src/routes/`                 | Demo app (provider switcher, connection settings, chat)                              |
-
 ## Roadmap
 
-- [ ] Auth support (session-scoped keys, token refresh hooks)
-- [ ] Vector DB / RAG integration helpers
+- [ ] Auth support
+- [ ] Vector DB / RAG helpers
 - [ ] Plugin system (message middleware, custom renderers)
-- [ ] More UI themes
-- [ ] Precompiled component CSS (use the kit without Tailwind)
+- [ ] More themes
+- [ ] Precompiled CSS — use the kit without Tailwind
 - [ ] File attachments
-- [ ] Function/tool-calling UI
-- [x] Publish as an npm package
+- [ ] Tool-calling UI
+- [x] npm package
 
 ## Contributing
 
-Contributions are welcome — bug reports, new providers, UI polish, docs. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for setup, code style, and PR guidelines. Adding a backend? Start with [docs/adding-a-provider.md](docs/adding-a-provider.md).
+PRs welcome — new providers are the most useful thing you can add. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
