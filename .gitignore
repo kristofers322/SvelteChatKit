@@ -10,10 +10,11 @@ node_modules
 .env.*
 !.env.example
 
-# OS / editor
+# OS / editor / local tooling
 .DS_Store
 .idea
 .vscode
+.claude/
 
 # Logs
 *.log
