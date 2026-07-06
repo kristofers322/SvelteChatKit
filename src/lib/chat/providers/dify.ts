@@ -45,7 +45,7 @@ interface DifyEvent {
  * sends only the latest user message as the query and keeps Dify's
  * conversation id; `reset()` starts a new conversation. The conversation id
  * is persisted to localStorage (keyed by base URL and a key hint) so the
- * conversation survives page reloads and provider re-instantiation — in step
+ * conversation survives page reloads and provider re-instantiation, in step
  * with the kit's persisted message history.
  */
 export class DifyProvider implements ChatProvider {
@@ -83,7 +83,7 @@ export class DifyProvider implements ChatProvider {
 			yield* this.stream(messages, options);
 		} catch (error) {
 			// A persisted conversation id can go stale (deleted app-side);
-			// Dify answers 404. Start a fresh conversation and retry once —
+			// Dify answers 404. Start a fresh conversation and retry once,
 			// safe because the 404 arrives before anything is yielded.
 			if (
 				error instanceof ChatProviderError &&

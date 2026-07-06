@@ -1,7 +1,7 @@
 import type { ChatMessage, ChatProvider, ProviderConfig, SendMessageOptions } from '../types.js';
 
 const RESPONSES: readonly string[] = [
-	`Hi! I'm the **demo provider** built into SvelteChatKit — a provider-agnostic chat UI kit for SvelteKit. I make no API calls; every reply is generated locally so you can explore the interface without any setup.
+	`Hi! I'm the **demo provider** built into SvelteChatKit. No API calls here, every reply is generated locally, so you can click around without any setup.
 
 Here's a taste of what the message renderer handles:
 
@@ -42,14 +42,14 @@ Implement those few lines and \`registerProvider()\` does the rest.`,
 
 	`Here are a few things you can try right now:
 
-1. Press the **stop button** mid-reply — the partial text is kept
-2. Reload the page — history persists via \`localStorage\`
-3. Scroll up while I'm streaming — auto-scroll politely stays out of your way
-4. Toggle your OS dark mode — the theme follows along
+1. Press the **stop button** mid-reply (the partial text is kept)
+2. Reload the page (history persists via \`localStorage\`)
+3. Scroll up while I'm streaming (auto-scroll stays out of your way)
+4. Toggle your OS dark mode (the theme follows along)
 
 Everything you see is plain Svelte 5 with Tailwind, so it's easy to restyle. The chat state lives in one \`Chat\` class driven by runes, and the components just read from it.`,
 
-	`One more tip: for production you generally don't want API keys in the browser. The \`custom\` provider is designed exactly for that — point it at a small server route that holds the key and forwards the conversation.
+	`One more tip: for production you generally don't want API keys in the browser. That's what the \`custom\` provider is for. Point it at a small server route that holds the key and forwards the conversation.
 
 \`\`\`ts
 // src/routes/api/chat/+server.ts
@@ -59,7 +59,7 @@ export async function POST({ request }) {
 }
 \`\`\`
 
-Then set \`PUBLIC_CUSTOM_ENDPOINT=/api/chat\` and the kit streams straight from your own backend. And that's the whole tour — I'll start cycling through my answers from here!`
+Then set \`PUBLIC_CUSTOM_ENDPOINT=/api/chat\` and the kit streams straight from your own backend. That's the whole tour. From here on I'll start repeating myself!`
 ];
 
 function wait(ms: number, signal?: AbortSignal): Promise<void> {

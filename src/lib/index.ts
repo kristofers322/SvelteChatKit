@@ -1,4 +1,4 @@
-// SvelteChatKit — public API
+// SvelteChatKit public API
 
 // Types & errors
 export type {

@@ -9,28 +9,28 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6.svg)](https://www.typescriptlang.org)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-![SvelteChatKit demo — streaming a GPT-4o-mini reply with syntax-highlighted code](docs/demo.gif)
+![SvelteChatKit demo streaming a GPT-4o-mini reply with syntax-highlighted code](docs/demo.gif)
 
 </div>
 
-One chat UI, any LLM. Swap between OpenAI, Ollama, Dify, n8n or your own API by changing a config object — streaming, markdown, history and the UI stay the same. Svelte 5 + SvelteKit 2, TypeScript, MIT.
+One chat UI, any LLM. Swap between OpenAI, Ollama, Dify, n8n or your own API by changing a config object. The streaming, markdown, history and UI all stay the same. Built with Svelte 5 and SvelteKit 2, fully typed, MIT.
 
 ## What you get
 
-- Token-by-token streaming with a stop button that actually aborts
-- One small `ChatProvider` interface — your own backend in ~20 lines
+- Token-by-token streaming, with a stop button that actually aborts the request
+- One small `ChatProvider` interface. Your own backend takes about 20 lines
 - Chat history that survives reloads (localStorage)
-- Markdown with syntax-highlighted code blocks, sanitized
-- Auto-scroll that follows the stream but never yanks the view while you read
-- Errors surfaced where you can see them, not swallowed
-- Dark mode, mobile friendly, fully typed
-- Runs with zero config — the built-in demo provider needs no API key
+- Markdown with highlighted code blocks, sanitized
+- Auto-scroll that follows the stream but leaves you alone when you scroll up
+- Errors show up in the UI instead of dying in the console
+- Dark mode, works on mobile, TypeScript strict
+- Runs with zero config, the built-in demo provider needs no API key
 
 ## Providers
 
 | `id`     | Works with                                                  | Needs                                     |
 | -------- | ----------------------------------------------------------- | ----------------------------------------- |
-| `openai` | OpenAI, OpenRouter, Groq, LM Studio, vLLM, llama.cpp, …     | `baseUrl`, `apiKey`, `model`              |
+| `openai` | OpenAI, OpenRouter, Groq, LM Studio, vLLM, llama.cpp, etc.  | `baseUrl`, `apiKey`, `model`              |
 | `ollama` | Local models via Ollama                                     | `baseUrl` (+ `OLLAMA_ORIGINS` in browser) |
 | `dify`   | Dify chat apps                                              | `baseUrl`, `apiKey`                       |
 | `n8n`    | n8n workflows behind a Chat Trigger                         | `baseUrl` = chat webhook URL              |
@@ -46,7 +46,7 @@ npm install
 npm run dev
 ```
 
-Works out of the box on the mock provider. Copy `.env.example` to `.env` to point it at a real backend. Node 20+.
+Runs on the mock provider out of the box. Copy `.env.example` to `.env` when you want to talk to a real backend. Needs Node 20+.
 
 ## Use it in your app
 
@@ -69,12 +69,12 @@ npm install sveltechatkit
 	const chat = new Chat(provider, { storageKey: 'my-app:chat' });
 </script>
 
-<ChatWindow {chat} placeholder="Ask anything…" />
+<ChatWindow {chat} />
 ```
 
-The components are styled with Tailwind (v3 or v4), and Tailwind doesn't scan `node_modules` on its own — **skip this and they render unstyled**:
+The components are styled with Tailwind (v3 and v4 both work). Tailwind doesn't scan `node_modules` by default, so without this step everything renders unstyled:
 
-**Tailwind v4** — in your main CSS file:
+**Tailwind v4**, in your main CSS file:
 
 ```css
 @import 'tailwindcss';
@@ -82,7 +82,7 @@ The components are styled with Tailwind (v3 or v4), and Tailwind doesn't scan `n
 @source '../node_modules/sveltechatkit/dist';
 ```
 
-**Tailwind v3** — in `tailwind.config.js`:
+**Tailwind v3**, in `tailwind.config.js`:
 
 ```js
 import typography from '@tailwindcss/typography';
@@ -93,7 +93,7 @@ export default {
 };
 ```
 
-Don't want the prebuilt UI? `Chat` gives you reactive `messages`, `status`, `error` and `busy` plus `send()`, `stop()`, `clear()`, `setProvider()` — build your own components on top.
+If you'd rather build your own UI, skip `ChatWindow`. The `Chat` class gives you reactive `messages`, `status`, `error` and `busy`, plus `send()`, `stop()`, `clear()` and `setProvider()`.
 
 ## Your own backend
 
@@ -127,13 +127,13 @@ class MyBackendProvider implements ChatProvider {
 registerProvider('my-backend', (config) => new MyBackendProvider(config));
 ```
 
-Full walkthrough with a working Anthropic provider: [docs/adding-a-provider.md](docs/adding-a-provider.md).
+There's a full walkthrough with a working Anthropic provider in [docs/adding-a-provider.md](docs/adding-a-provider.md).
 
 ## Config
 
-The demo reads `PUBLIC_*` vars from `.env` — every variable is listed in [.env.example](.env.example), all optional. In your own app, prefer passing a `ProviderConfig` object directly (like the snippet above); it works with any bundler.
+The demo reads `PUBLIC_*` vars from `.env`. Every variable is listed in [.env.example](.env.example) and they're all optional. In your own app it's better to pass a `ProviderConfig` object directly (like the snippet above), since that works with any bundler.
 
-One warning: `PUBLIC_*` vars end up in the client bundle, visible to anyone. Fine locally — in production keep keys on your server and point the `custom` provider at a small proxy route.
+One thing to know: `PUBLIC_*` vars end up in the client bundle, so anyone can read them. Fine for local dev. In production keep keys on your server and point the `custom` provider at a small proxy route.
 
 ## Screenshots
 
@@ -174,15 +174,15 @@ One warning: `PUBLIC_*` vars end up in the client bundle, visible to anyone. Fin
 - [ ] Vector DB / RAG helpers
 - [ ] Plugin system (message middleware, custom renderers)
 - [ ] More themes
-- [ ] Precompiled CSS — use the kit without Tailwind
+- [ ] Precompiled CSS so you can use the kit without Tailwind
 - [ ] File attachments
 - [ ] Tool-calling UI
 - [x] npm package
 
 ## Contributing
 
-PRs welcome — new providers are the most useful thing you can add. See [CONTRIBUTING.md](CONTRIBUTING.md).
+PRs welcome. New providers are the most useful thing you can add. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-[MIT](LICENSE) — use it, fork it, ship it.
+[MIT](LICENSE). Use it, fork it, ship it.

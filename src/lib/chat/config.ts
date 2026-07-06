@@ -11,8 +11,8 @@ export interface ChatKitConfig {
 	systemPrompt?: string;
 }
 
-// The literal `import.meta.env` expression is required — Vite only injects
-// env vars into modules where it statically sees that exact member access.
+// The literal `import.meta.env` expression is required because Vite only
+// injects env vars into modules where it sees that exact member access.
 const metaEnv = (import.meta.env ?? {}) as unknown as Record<string, unknown>;
 
 function env(name: string): string | undefined {

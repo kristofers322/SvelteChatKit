@@ -1,6 +1,6 @@
 # Contributing
 
-PRs welcome — new providers, bug fixes, UI polish, docs. All of it.
+PRs welcome. New providers, bug fixes, UI polish, docs. All of it.
 
 ## Setup
 
@@ -32,14 +32,14 @@ src/lib/chat/            core
   storage.ts             SSR-safe localStorage persistence
   providers/             registry + built-ins
 src/lib/components/      the UI
-src/lib/index.ts         public API — everything exported lives here
+src/lib/index.ts         public API, everything exported lives here
 src/routes/              demo app
 docs/                    guides
 ```
 
 ## Style
 
-- Prettier is wired up — run `npm run format` before committing
+- Prettier is wired up, run `npm run format` before committing
 - TypeScript strict; no `any` unless there's genuinely no better type
 - Svelte 5 runes only, no legacy stores
 - JSDoc on public API; no comment noise inside functions
@@ -47,18 +47,18 @@ docs/                    guides
 
 ## Adding a provider
 
-The most useful contribution. Implement `ChatProvider`, register it with `registerProvider` — no kit changes needed. Tutorial: [docs/adding-a-provider.md](docs/adding-a-provider.md).
+The most useful contribution. Implement `ChatProvider`, register it with `registerProvider`, and you're done, no kit changes needed. Tutorial: [docs/adding-a-provider.md](docs/adding-a-provider.md).
 
 Provider PR checklist:
 
 - Honors `options.signal`; `AbortError` propagates unwrapped
 - Maps HTTP failures to `ChatProviderError` with a message a user can act on
 - Never logs the API key
-- Streams incrementally — yield chunks as they arrive
+- Streams incrementally, yield chunks as they arrive
 
 ## PRs
 
-Keep them small and focused. Say what changed and how you tested it; screenshots (light + dark) for UI changes. Short imperative commit subjects — `feat:`/`fix:` prefixes appreciated, not required.
+Keep them small and focused. Say what changed and how you tested it, with screenshots (light and dark) for UI changes. Short imperative commit subjects; `feat:`/`fix:` prefixes are nice but not required.
 
 ## Bugs
 

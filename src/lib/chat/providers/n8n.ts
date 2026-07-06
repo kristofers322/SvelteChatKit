@@ -4,7 +4,7 @@ import { lineStream, providerFetch } from '../stream.js';
 
 const SESSION_KEY_PREFIX = 'sveltechatkit:n8n-session:';
 
-// The chunk format n8n emits in "Streaming" response mode — newline-delimited
+// The chunk format n8n emits in "Streaming" response mode: newline-delimited
 // JSON, mirroring the official @n8n/chat client's parser.
 interface StructuredChunk {
 	type?: unknown;

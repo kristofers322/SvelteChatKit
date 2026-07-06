@@ -7,7 +7,7 @@ import { providerFetch, sseStream, textStream } from '../stream.js';
  * Sends `{ messages, model? }` as JSON and auto-detects the response format:
  * `text/event-stream` responses are parsed as SSE (JSON payloads with a
  * `content`, `text`, or `delta` string field, `[DONE]` sentinel, or raw
- * text); anything else is streamed as plain text — which also covers
+ * text); anything else is streamed as plain text, which also covers
  * non-streaming responses. Ideal as a server-side proxy so API keys never
  * reach the browser.
  */
@@ -35,7 +35,7 @@ export class CustomEndpointProvider implements ChatProvider {
 		if (!this.endpoint) {
 			throw new ChatProviderError(
 				this.id,
-				'No endpoint configured — set baseUrl (PUBLIC_CUSTOM_ENDPOINT) to the full URL of your chat endpoint.'
+				'No endpoint configured. Set baseUrl (PUBLIC_CUSTOM_ENDPOINT) to the full URL of your chat endpoint.'
 			);
 		}
 

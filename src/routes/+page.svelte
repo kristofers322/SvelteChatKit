@@ -98,8 +98,8 @@
 		} catch {
 			/* storage unavailable */
 		}
-		// Only swap the provider when the effective config actually changed —
-		// recreating on every keystroke would discard provider-side state.
+		// Only swap the provider when the effective config actually changed.
+		// Recreating on every keystroke would discard provider-side state.
 		const key = configKey(config);
 		if (key !== activeConfigKey) {
 			activeConfigKey = key;
@@ -113,10 +113,10 @@
 </script>
 
 <svelte:head>
-	<title>SvelteChatKit — provider-agnostic AI chat UI kit</title>
+	<title>SvelteChatKit · AI chat UI for SvelteKit</title>
 	<meta
 		name="description"
-		content="A universal, provider-agnostic AI chat UI kit for SvelteKit. Streaming, markdown, dark mode — works with OpenAI-compatible APIs, Ollama, Dify, and custom backends."
+		content="AI chat UI kit for SvelteKit. Streaming, markdown, dark mode. Works with OpenAI-compatible APIs, Ollama, Dify, n8n and custom backends."
 	/>
 </svelte:head>
 
@@ -262,8 +262,8 @@
 							/>
 						</label>
 						<p class="text-xs leading-relaxed text-zinc-400 sm:col-span-2 dark:text-zinc-500">
-							Keys entered here stay in your browser, but client-side keys are visible to users —
-							use a server proxy in production.
+							Keys entered here stay in your browser and are never saved. For production, keep keys
+							on a server proxy instead.
 						</p>
 					</div>
 				{/if}

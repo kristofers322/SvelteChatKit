@@ -48,7 +48,7 @@ export function createProvider(config: ProviderConfig): ChatProvider {
 
 /**
  * Lists all registered providers with their default labels, in registration
- * order — handy for building a provider picker.
+ * order, handy for building a provider picker.
  */
 export function getRegisteredProviders(): { id: string; label: string }[] {
 	return [...registry.entries()].map(([id, entry]) => ({ id, label: entry.label }));

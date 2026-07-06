@@ -1,6 +1,6 @@
 # Adding a provider
 
-You implement one interface, register a factory, and the provider shows up everywhere — including the demo's dropdown. No kit code changes. As the worked example we'll build an **Anthropic** provider, because it touches everything real: auth headers, SSE parsing, abort, error mapping.
+You implement one interface, register a factory, and the provider shows up everywhere, including the demo's dropdown. No kit code changes. As the worked example we'll build an **Anthropic** provider, because it touches everything real: auth headers, SSE parsing, abort, error mapping.
 
 ## 1. The contract
 
@@ -19,7 +19,7 @@ export interface ChatProvider {
 Rules:
 
 - `sendMessage` gets the full history (with a leading `system` message if configured) and yields the reply as text chunks.
-- Pass `options.signal` to `fetch` and let `AbortError` propagate unwrapped — that's the stop button.
+- Pass `options.signal` to `fetch` and let `AbortError` propagate unwrapped. That's the stop button.
 - Throw `ChatProviderError` with a message a user can act on; don't swallow failures.
 - Never log the API key.
 
@@ -176,4 +176,4 @@ The demo dropdown builds itself from `getRegisteredProviders()`, so a registered
 
 ## Production note
 
-Calling a keyed API straight from the browser shows the key to every visitor. In production, put a small proxy route on your server that injects the key and point the built-in `custom` provider at it — the UI works identically.
+Calling a keyed API straight from the browser shows the key to every visitor. In production, put a small proxy route on your server that injects the key and point the built-in `custom` provider at it. The UI works exactly the same.

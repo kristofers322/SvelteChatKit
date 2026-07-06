@@ -43,7 +43,7 @@ export interface ProviderConfig {
 	label?: string;
 	/** Base URL of the API, without trailing slash. */
 	baseUrl?: string;
-	/** API key/token. In the browser this is visible to users — proxy in production. */
+	/** API key/token. In the browser this is visible to users; proxy in production. */
 	apiKey?: string;
 	/** Default model. */
 	model?: string;

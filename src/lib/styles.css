@@ -1,5 +1,5 @@
 /*
- * SvelteChatKit stylesheet — ships with the package.
+ * SvelteChatKit stylesheet, ships with the package.
  *
  * Plain CSS on purpose: consumers import it directly
  * (`import 'sveltechatkit/styles.css'`) without running it through
@@ -9,7 +9,7 @@
  */
 
 /* ------------------------------------------------------------------ */
-/* Code blocks — always dark, in both color schemes                    */
+/* Code blocks: always dark, in both color schemes                     */
 /* ------------------------------------------------------------------ */
 
 .prose pre {
@@ -64,7 +64,7 @@
 }
 
 /* ------------------------------------------------------------------ */
-/* highlight.js theme — muted pastels on near-black, zinc-aligned      */
+/* highlight.js theme: muted pastels on near-black, zinc-aligned       */
 /* ------------------------------------------------------------------ */
 
 .hljs {

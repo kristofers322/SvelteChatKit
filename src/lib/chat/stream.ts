@@ -52,7 +52,7 @@ export async function* lineStream(response: Response): AsyncGenerator<string> {
 
 /**
  * Yields the payload of each Server-Sent Event `data:` field verbatim
- * (whitespace preserved — raw-text token streams carry significant spaces),
+ * (whitespace preserved; raw-text token streams carry significant spaces),
  * skipping comments and events without data. Multi-line `data:` fields are
  * joined with newlines, and events split across network chunks are
  * reassembled correctly.
@@ -119,7 +119,7 @@ export async function ensureOk(response: Response, provider: string): Promise<vo
 	const hint = statusHint(status);
 	if (hint) parts.push(hint);
 	if (detail) parts.push(detail.slice(0, 300).trim());
-	throw new ChatProviderError(provider, parts.join(' — '), status);
+	throw new ChatProviderError(provider, parts.join(' - '), status);
 }
 
 function statusHint(status: number): string {
