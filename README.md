@@ -9,6 +9,8 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6.svg)](https://www.typescriptlang.org)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
+![SvelteChatKit demo — streaming a GPT-4o-mini reply with syntax-highlighted code](docs/demo.gif)
+
 </div>
 
 SvelteChatKit is a complete, streaming chat interface for SvelteKit 2 and Svelte 5 (runes) that talks to any LLM backend through one small interface. Swap between OpenAI-compatible APIs, Ollama, Dify, or your own endpoint by changing a config object — the UI, state management, markdown rendering, and persistence stay exactly the same. If your chat UI shouldn't be married to one vendor's API shape, this is the kit for you.
