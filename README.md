@@ -1,276 +1,193 @@
-# Svelte Chat Widget Documentation
+<div align="center">
 
-## 1. Project Overview
+# SvelteChatKit
 
-The Svelte Chat Widget is a customizable chat interface built using Svelte, Vite, and Tailwind CSS. It provides a floating chat icon that expands into a full chat window when clicked. The widget is designed to be easily integrated into existing web applications and features a typewriting animation for bot responses.
+**A universal, provider-agnostic AI chat UI kit for SvelteKit.**
 
-## 2. Installation
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Svelte 5](https://img.shields.io/badge/Svelte-5-ff3e00.svg)](https://svelte.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6.svg)](https://www.typescriptlang.org)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-To set up the project, follow these steps:
-
-1. Clone the repository
-2. Navigate to the project directory
-3. Install dependencies:
-   ```
-   npm install
-   ```
-
-## 3. Project Structure
-
-The project structure is as follows:
-
-```
-svelte-chat-widget/
-├── public/
-│   └── index.html
-├── src/
-│   ├── lib/
-│   │   ├── ChatIcon.svelte
-│   │   ├── ChatWindow.svelte
-│   │   ├── LoadingDots.svelte
-│   │   └── TypingAnimation.svelte
-│   ├── App.svelte
-│   ├── main.js
-│   └── app.css
-├── package.json
-├── package-lock.json
-├── vite.config.js
-├── tailwind.config.js
-├── postcss.config.js
-├── demo.html
-└── demo-build.html
-```
-
-## 4. Main Components
-
-### 4.1 App.svelte
-
-This is the main component that renders the chat widget. It manages the state of whether the chat window is open or closed and handles the transition animations.
-
-Key features:
-
-- Toggles the chat window visibility
-- Applies slide and fade transitions when opening/closing the chat window
-
-### 4.2 ChatIcon.svelte
-
-This component displays the chat icon that users can click to open the chat window.
-
-### 4.3 ChatWindow.svelte
-
-This is the main chat interface component. It handles the display of messages, user input, and integrates with a backend API for real-time chat functionality.
-
-Key features:
-
-- Displays chat messages with different styles for user and agent messages
-- Handles user input and message submission
-- Integrates with Dify.ai API for chat functionality
-- Implements streaming responses for real-time message display
-- Supports Markdown rendering for rich text formatting
-- Utilizes the `marked` library for Markdown parsing and `DOMPurify` for sanitizing rendered HTML
-- Displays an avatar for the agent in the chat header and messages
-- Provides a close button to dismiss the chat window
-- Uses Tailwind CSS for styling, including responsive design and custom colors
-- Implements proper avatar image handling to maintain aspect ratio
-- Manages conversation history with local storage
-- Handles user and conversation ID management for persistent chats
-- Implements error handling and retry logic for improved reliability
-- Incorporates LoadingDots component for visual feedback during message processing
-
-### 4.3.1 API Integration
-
-The ChatWindow component integrates with the Dify.ai API to provide real chat functionality:
-
-- Uses fetch API to send and receive messages
-- Implements streaming responses for real-time message display
-- Manages conversation history and user sessions
-- Handles API errors and provides user feedback
-
-### 4.4 TypingAnimation.svelte
-
-This component displays a typewriting animation when the agent is composing a response. It renders the text character by character, creating a realistic typing effect.
-
-Key features:
-
-- Accepts text input and displays it progressively
-- Customizable typing speed
-- Can be easily integrated into the chat flow
-
-### 4.5 LoadingDots.svelte
-
-This component displays an animated loading indicator using three bouncing dots. It's used to show that the chat is waiting for a response or processing information.
-
-Key features:
-
-- Provides a visual indication of loading or processing using Tailwind CSS animations
-- Uses three small, rounded dots that bounce with a slight delay between each
-- Includes a screen reader-only text for accessibility ("Typing...")
-- Can be easily integrated into the chat flow to improve user experience
-- Utilizes Tailwind CSS classes for styling and animations
-
-## 5. Building and Running the Project
-
-To run the project in development mode:
-
-```
-npm run dev
-```
-
-To build the project for production:
-
-```
-npm run build
-```
-
-To preview the production build:
-
-```
-npm run preview
-```
-
-The project includes two HTML files for demonstration purposes:
-
-- `demo.html`: Used for live development and testing
-- `demo-build.html`: A production-ready version of the demo
-
-## 6. Customization
-
-### 6.1 Styling with Tailwind CSS
-
-The chat widget's appearance is customized using Tailwind CSS. Key areas for customization include:
-
-- Colors (background, text, buttons)
-- Dimensions (width, height)
-- Font styles
-- Border radius
-- Message bubble styles
-- Avatar appearance
-
-To modify styles:
-
-1. Edit the Tailwind classes in the `ChatWindow.svelte` component.
-2. For custom styles not covered by Tailwind, you can add them to the `src/app.css` file or use Tailwind's `@apply` directive in the component.
-
-### 6.2 Tailwind Configuration
-
-The project uses a custom Tailwind configuration file (`tailwind.config.js`) which includes the Typography plugin for improved Markdown rendering. You can modify this file to:
-
-- Change the default theme
-- Add custom colors, fonts, or other design tokens
-- Modify the Typography plugin settings
-
-### 6.3 PostCSS Configuration
-
-The project includes a `postcss.config.js` file, which is used to configure PostCSS. This is typically used in conjunction with Tailwind CSS to process and optimize the CSS output.
-
-### 6.4 Functionality
-
-To modify the chat widget's behavior:
-
-- Edit the `generateDummyReply` function in `ChatWindow.svelte` to change the simulated responses
-- Adjust the typing animation duration and speed in `ChatWindow.svelte` and `TypingAnimation.svelte`
-- Modify the initial messages in the `messages` array in `ChatWindow.svelte`
-- Customize the Markdown rendering options by modifying the `marked` configuration
-
-## 7. Dependencies
-
-The project uses the following main dependencies:
-
-- Svelte: ^3.54.0
-- Vite: ^4.0.0
-- @sveltejs/vite-plugin-svelte: ^2.0.0
-- Tailwind CSS: ^3.x
-- @tailwindcss/typography: ^0.5.x
-- marked: (for Markdown parsing)
-- DOMPurify: (for sanitizing rendered HTML)
-
-For a complete list of dependencies, refer to the `package.json` file.
-
-## 8. Building as a Library
-
-The project is configured to be built as a library using Vite. The `vite.config.js` file specifies the library configuration:
-
-```javascript
-export default defineConfig({
-  plugins: [svelte()],
-  build: {
-    lib: {
-      entry: 'src/main.js',
-      name: 'SvelteChatWidget',
-      fileName: 'svelte-chat-widget'
-    }
-  }
-});
-```
-
-This configuration allows the chat widget to be easily integrated into other projects as a reusable component.
-
-## 9. Tailwind CSS Integration
-
-The project now uses Tailwind CSS for styling, which provides several benefits:
-
-- Rapid UI development with utility classes
-- Consistent design language across the application
-- Easy responsiveness and dark mode implementation
-- Reduced CSS bundle size through purging unused styles
-
-### 9.1 Tailwind CSS Setup
-
-The Tailwind CSS setup includes:
-
-1. Installation of Tailwind CSS and its dependencies.
-2. Configuration file (`tailwind.config.js`) with content sources defined.
-3. PostCSS configuration (`postcss.config.js`) for processing Tailwind directives.
-4. Integration of the `@tailwindcss/typography` plugin for improved Markdown rendering.
-
-### 9.2 Usage in Components
-
-Tailwind classes are used directly in the HTML markup of Svelte components. For example:
-
-```html
-<div class="w-[390px] h-[550px] bg-gray-100 rounded-lg shadow-md flex flex-col fixed bottom-[90px] right-5 z-[1000] text-sm">
-  <!-- Component content -->
 </div>
+
+SvelteChatKit is a complete, streaming chat interface for SvelteKit 2 and Svelte 5 (runes) that talks to any LLM backend through one small interface. Swap between OpenAI-compatible APIs, Ollama, Dify, or your own endpoint by changing a config object — the UI, state management, markdown rendering, and persistence stay exactly the same. If your chat UI shouldn't be married to one vendor's API shape, this is the kit for you.
+
+## Features
+
+- **Streaming responses** — token-by-token rendering over SSE, NDJSON, or raw text streams, with a stop button that aborts cleanly mid-stream
+- **Provider-agnostic** — one `ChatProvider` interface; add a new backend without touching kit code
+- **Persistence** — conversation history survives reloads via `localStorage` (opt-in, SSR-safe)
+- **Markdown + syntax highlighting** — GFM rendering with highlight.js code blocks, sanitized with DOMPurify
+- **Smart auto-scroll** — follows the stream while you're near the bottom, never yanks the view when you scroll up, floating scroll-to-bottom pill
+- **Error handling** — typed `ChatProviderError` with actionable messages, dismissable inline error banner, per-message error states
+- **Mobile responsive** — usable at 375px, 16px inputs (no iOS zoom), auto-growing textarea
+- **Dark mode** — coherent light/dark styling via Tailwind `dark:` variants
+- **TypeScript strict** — fully typed public API
+- **Zero-config demo mode** — a built-in mock provider streams canned markdown responses with no API key, so `npm run dev` just works
+
+## Supported providers
+
+| Provider | `id` | Works with | Transport | Config |
+| --- | --- | --- | --- | --- |
+| OpenAI-compatible | `openai` | OpenAI, OpenRouter, Groq, LM Studio, vLLM, llama.cpp, Azure-style gateways | SSE (`POST {baseUrl}/chat/completions`) | `baseUrl`, `apiKey`, `model` |
+| Ollama | `ollama` | Local models via Ollama | NDJSON (`POST {baseUrl}/api/chat`) | `baseUrl`, `model` — browser use requires `OLLAMA_ORIGINS` |
+| Dify | `dify` | Dify chat apps (conversation-based) | SSE (`POST {baseUrl}/chat-messages`) | `baseUrl`, `apiKey` |
+| Custom endpoint | `custom` | Your own backend or server proxy | Auto-detected: SSE, streamed text, or plain body | `baseUrl` (full endpoint URL), `headers` |
+| Mock | `mock` | Demo mode — no network calls | — | none |
+
+## Quick start
+
+```bash
+git clone https://github.com/yourname/sveltechatkit.git
+cd sveltechatkit
+
+npm install        # or: pnpm install
+cp .env.example .env
+npm run dev        # or: pnpm dev
 ```
 
-This approach allows for rapid styling and easy modifications without the need for custom CSS in most cases.
+Open the printed URL and start chatting — the demo runs on the mock provider out of the box, no keys required. Fill in `.env` to point it at a real backend. Node 20+ required.
 
-### 9.3 Custom Styles
+## Usage
 
-For any styles that can't be achieved with Tailwind's utility classes, you can:
+Create a provider, hand it to a `Chat` instance, and render `ChatWindow`:
 
-1. Use the `@apply` directive in a `<style>` block within a Svelte component.
-2. Add custom CSS to the `src/app.css` file.
-3. Extend the Tailwind theme in the `tailwind.config.js` file.
+```svelte
+<script lang="ts">
+	import { Chat, ChatWindow, createProvider } from '$lib';
 
-### 9.4 Responsive Design
+	const provider = createProvider({
+		id: 'openai',
+		baseUrl: 'https://api.openai.com/v1',
+		apiKey: 'sk-...',
+		model: 'gpt-4o-mini'
+	});
 
-Tailwind's responsive utilities are used to ensure the chat widget looks good on various screen sizes. You can further customize the responsive behavior by using Tailwind's responsive prefixes (e.g., `md:`, `lg:`) in the component markup.
+	const chat = new Chat(provider, {
+		storageKey: 'my-app:chat-history',
+		systemPrompt: 'You are a concise, helpful assistant.'
+	});
+</script>
 
-### 9.5 Performance Considerations
+<ChatWindow {chat} placeholder="Ask anything…" />
+```
 
-Tailwind CSS is configured to purge unused styles in production builds, ensuring a minimal CSS bundle size. Make sure to run production builds when deploying to benefit from this optimization.
+`Chat` exposes runes-reactive `messages`, `status`, `error`, and `busy`, plus `send()`, `stop()`, `clear()`, and `setProvider()` — so you can also build a fully custom UI on top of it.
 
-## 10. Docker Deployment
+### A custom provider in ~20 lines
 
-The project includes a Dockerfile for easy deployment using Docker. Here are the key aspects of the Docker setup:
+Any object implementing `ChatProvider` works. Register it once and it becomes available through the same factory as the built-ins:
 
-- Uses Node.js 14 as the base image
-- Installs project dependencies
-- Builds the application
-- Serves the built application using ``npx serve`` on port 5000
-- To build and run the Docker container:
+```ts
+import { ensureOk, registerProvider, sseStream } from '$lib';
+import type { ChatMessage, ChatProvider, ProviderConfig, SendMessageOptions } from '$lib';
 
-Build the Docker image:
+class MyBackendProvider implements ChatProvider {
+	readonly id = 'my-backend';
+	readonly label = 'My Backend';
 
-``docker build -t svelte-chat-widget .``
+	constructor(private config: ProviderConfig) {}
 
+	async *sendMessage(messages: ChatMessage[], options?: SendMessageOptions) {
+		const response = await fetch(`${this.config.baseUrl}/chat`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json', ...this.config.headers },
+			body: JSON.stringify({ messages: messages.map(({ role, content }) => ({ role, content })) }),
+			signal: options?.signal
+		});
+		await ensureOk(response, this.id);
+		for await (const data of sseStream(response)) {
+			if (data === '[DONE]') return;
+			yield JSON.parse(data).content as string;
+		}
+	}
+}
 
-Run the container:
+registerProvider('my-backend', (config) => new MyBackendProvider(config));
+```
 
-``docker run -p 5000:5000 svelte-chat-widget``
+For a complete walkthrough — including a working Anthropic provider — see [docs/adding-a-provider.md](docs/adding-a-provider.md).
 
+## Configuration
 
-The application will be accessible at http://localhost:5000.
+The demo reads `PUBLIC_*` variables from `.env` (see `.env.example`). All are optional; with no `.env` at all the demo runs on the mock provider.
 
-With these updates, the documentation should now accurately reflect the current state of the project, including the new features in ChatWindow.svelte and ChatIcon.svelte, as well as the Docker deployment process.
+| Variable | Default | Description |
+| --- | --- | --- |
+| `PUBLIC_DEFAULT_PROVIDER` | `mock` | Provider selected on load: `mock` \| `openai` \| `ollama` \| `dify` \| `custom` |
+| `PUBLIC_OPENAI_BASE_URL` | `https://api.openai.com/v1` | Any OpenAI-compatible base URL |
+| `PUBLIC_OPENAI_API_KEY` | — | API key sent as `Authorization: Bearer …` |
+| `PUBLIC_OPENAI_MODEL` | `gpt-4o-mini` | Default model |
+| `PUBLIC_DIFY_BASE_URL` | `https://api.dify.ai/v1` | Dify API base URL |
+| `PUBLIC_DIFY_API_KEY` | — | Dify app API key |
+| `PUBLIC_OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama server URL |
+| `PUBLIC_OLLAMA_MODEL` | `llama3.1` | Default Ollama model |
+| `PUBLIC_CUSTOM_ENDPOINT` | — | Full URL of your own chat endpoint |
+
+> **A note on keys:** `PUBLIC_*` variables are embedded in the client bundle and visible to anyone using your site. They're fine for local development, but in production keep keys server-side: point the [custom endpoint provider](docs/adding-a-provider.md) at a small proxy route that adds the `Authorization` header on the server.
+
+## Screenshots
+
+> Placeholder images — replace `docs/screenshot-light.png` and `docs/screenshot-dark.png` with captures of your deployment.
+
+| Light | Dark |
+| --- | --- |
+| ![SvelteChatKit light mode](docs/screenshot-light.png) | ![SvelteChatKit dark mode](docs/screenshot-dark.png) |
+
+## Architecture
+
+```
+┌──────────────────────────────────────────────────────┐
+│                     Components                        │
+│   ChatWindow ─ MessageList ─ MessageBubble            │
+│   ChatInput ─ Markdown ─ TypingIndicator              │
+└──────────────────────────┬───────────────────────────┘
+                           │ props
+                  ┌────────▼─────────┐
+                  │   Chat (runes)   │  messages · status · error
+                  │ send/stop/clear  │  persistence · abort
+                  └────────┬─────────┘
+                           │ sendMessage(history, { signal, model })
+               ┌───────────▼────────────┐
+               │ ChatProvider interface │  AsyncGenerator<string>
+               └───────────┬────────────┘
+       ┌─────────┬─────────┼──────────┬───────────┐
+       ▼         ▼         ▼          ▼           ▼
+    OpenAI-   Ollama     Dify      Custom       Mock
+    compat.                       endpoint   (no network)
+       │         │         │          │
+       ▼         ▼         ▼          ▼
+      SSE      NDJSON     SSE     SSE / text
+              (upstream chat APIs)
+```
+
+| Module | Purpose |
+| --- | --- |
+| `src/lib/chat/types.ts` | Core contracts: `ChatMessage`, `ChatProvider`, `ProviderConfig`, `ChatProviderError` |
+| `src/lib/chat/chat.svelte.ts` | `Chat` runes state class: send/stop/clear, streaming loop, persistence |
+| `src/lib/chat/providers/` | Provider registry (`registerProvider`, `createProvider`) + five built-ins |
+| `src/lib/chat/stream.ts` | Transport helpers: `sseStream`, `lineStream`, `textStream`, `ensureOk` |
+| `src/lib/chat/config.ts` | `defineChatKitConfig` + env-driven `defaultConfig` |
+| `src/lib/chat/markdown.ts` | `renderMarkdown`: marked + highlight.js + DOMPurify |
+| `src/lib/chat/storage.ts` | SSR-safe `localStorage` history persistence |
+| `src/lib/components/` | The six UI components |
+| `src/routes/` | Demo app (provider switcher, connection settings, chat) |
+
+## Roadmap
+
+- [ ] Auth support (session-scoped keys, token refresh hooks)
+- [ ] Vector DB / RAG integration helpers
+- [ ] Plugin system (message middleware, custom renderers)
+- [ ] More UI themes
+- [ ] File attachments
+- [ ] Function/tool-calling UI
+- [ ] Publish as an npm package
+
+## Contributing
+
+Contributions are welcome — bug reports, new providers, UI polish, docs. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for setup, code style, and PR guidelines. Adding a backend? Start with [docs/adding-a-provider.md](docs/adding-a-provider.md).
+
+## License
+
+[MIT](LICENSE) — use it, fork it, ship it.
