@@ -1,3 +1,78 @@
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	html {
+		-webkit-text-size-adjust: 100%;
+		text-rendering: optimizeLegibility;
+	}
+}
+
+/* ------------------------------------------------------------------ */
+/* Code blocks — always dark, in both color schemes                    */
+/* ------------------------------------------------------------------ */
+
+.prose pre {
+	@apply rounded-lg border border-zinc-800 bg-zinc-950 text-[13px] leading-relaxed;
+}
+
+.prose :not(pre) > code {
+	@apply rounded bg-zinc-100 px-1.5 py-0.5 text-[0.85em] font-normal text-zinc-800 before:content-none after:content-none dark:bg-zinc-800 dark:text-zinc-200;
+}
+
+/* highlight.js theme — muted pastels on near-black, zinc-aligned */
+.hljs {
+	color: #e4e4e7;
+}
+.hljs-comment,
+.hljs-quote,
+.hljs-meta {
+	color: #71717a;
+	font-style: italic;
+}
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-template-tag,
+.hljs-doctag {
+	color: #c4b5fd;
+}
+.hljs-string,
+.hljs-regexp,
+.hljs-addition,
+.hljs-attr {
+	color: #86efac;
+}
+.hljs-number,
+.hljs-literal,
+.hljs-deletion {
+	color: #fda4af;
+}
+.hljs-title,
+.hljs-title.class_,
+.hljs-title.function_,
+.hljs-name,
+.hljs-section {
+	color: #93c5fd;
+}
+.hljs-attribute,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-type,
+.hljs-symbol,
+.hljs-bullet {
+	color: #fcd34d;
+}
+.hljs-built_in,
+.hljs-builtin-name {
+	color: #67e8f9;
+}
+.hljs-emphasis {
+	font-style: italic;
+}
+.hljs-strong {
+	font-weight: 600;
+}
+.hljs-link {
+	text-decoration: underline;
+}
