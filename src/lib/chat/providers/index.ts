@@ -3,6 +3,7 @@ import { ChatProviderError } from '../types.js';
 import { OpenAICompatibleProvider } from './openai.js';
 import { DifyProvider } from './dify.js';
 import { OllamaProvider } from './ollama.js';
+import { N8nProvider } from './n8n.js';
 import { CustomEndpointProvider } from './custom.js';
 import { MockProvider } from './mock.js';
 
@@ -57,10 +58,12 @@ registerProvider('mock', (config) => new MockProvider(config));
 registerProvider('openai', (config) => new OpenAICompatibleProvider(config));
 registerProvider('ollama', (config) => new OllamaProvider(config));
 registerProvider('dify', (config) => new DifyProvider(config));
+registerProvider('n8n', (config) => new N8nProvider(config));
 registerProvider('custom', (config) => new CustomEndpointProvider(config));
 
 export { OpenAICompatibleProvider } from './openai.js';
 export { DifyProvider } from './dify.js';
 export { OllamaProvider } from './ollama.js';
+export { N8nProvider } from './n8n.js';
 export { CustomEndpointProvider } from './custom.js';
 export { MockProvider } from './mock.js';

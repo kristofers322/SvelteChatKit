@@ -48,6 +48,10 @@ export const defaultConfig: ChatKitConfig = {
 			baseUrl: env('PUBLIC_OLLAMA_BASE_URL') ?? 'http://localhost:11434',
 			model: env('PUBLIC_OLLAMA_MODEL') ?? 'llama3.1'
 		},
+		n8n: {
+			id: 'n8n',
+			baseUrl: env('PUBLIC_N8N_WEBHOOK_URL')
+		},
 		custom: {
 			id: 'custom',
 			baseUrl: env('PUBLIC_CUSTOM_ENDPOINT')

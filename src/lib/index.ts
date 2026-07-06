@@ -26,6 +26,7 @@ export {
 export { OpenAICompatibleProvider } from './chat/providers/openai.js';
 export { DifyProvider } from './chat/providers/dify.js';
 export { OllamaProvider } from './chat/providers/ollama.js';
+export { N8nProvider } from './chat/providers/n8n.js';
 export { CustomEndpointProvider } from './chat/providers/custom.js';
 export { MockProvider } from './chat/providers/mock.js';
 
