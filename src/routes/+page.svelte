@@ -143,7 +143,7 @@
 				</span>
 			</div>
 			<a
-				href="https://github.com/yourname/sveltechatkit"
+				href="https://github.com/kristofers322/SvelteChatKit"
 				target="_blank"
 				rel="noopener noreferrer"
 				aria-label="GitHub repository"

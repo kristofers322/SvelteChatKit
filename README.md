@@ -41,9 +41,11 @@ SvelteChatKit is a complete, streaming chat interface for SvelteKit 2 and Svelte
 
 ## Quick start
 
+### Try the demo
+
 ```bash
-git clone https://github.com/yourname/sveltechatkit.git
-cd sveltechatkit
+git clone https://github.com/kristofers322/SvelteChatKit.git
+cd SvelteChatKit
 
 npm install        # or: pnpm install
 cp .env.example .env
@@ -52,13 +54,50 @@ npm run dev        # or: pnpm dev
 
 Open the printed URL and start chatting — the demo runs on the mock provider out of the box, no keys required. Fill in `.env` to point it at a real backend. Node 20+ required.
 
+### Install in your app
+
+```bash
+npm install sveltechatkit    # or: pnpm add sveltechatkit
+```
+
+The components are styled with Tailwind utilities (v3 and v4 are both supported), so your app needs two things:
+
+1. Import the kit stylesheet once (code blocks, tables, syntax-highlighting theme) — e.g. in `+layout.svelte`:
+
+   ```ts
+   import 'sveltechatkit/styles.css';
+   ```
+
+2. Tell Tailwind to scan the package and enable the typography plugin. **This step is load-bearing** — Tailwind does not scan `node_modules` on its own, so skipping it leaves the components unstyled.
+
+   **Tailwind v4** (CSS-first config) — in your main CSS file (paths are relative to it):
+
+   ```css
+   @import 'tailwindcss';
+   @plugin '@tailwindcss/typography';
+   @source '../node_modules/sveltechatkit/dist';
+   ```
+
+   **Tailwind v3** — in `tailwind.config.js`:
+
+   ```js
+   import typography from '@tailwindcss/typography';
+
+   export default {
+   	content: ['./src/**/*.{html,js,svelte,ts}', './node_modules/sveltechatkit/dist/**/*.svelte'],
+   	plugins: [typography]
+   };
+   ```
+
+Dark mode in the kit follows `prefers-color-scheme` (`darkMode: 'media'`); if your app uses class-based dark mode the components follow your class strategy, while the shipped stylesheet's dark code styling stays media-based.
+
 ## Usage
 
 Create a provider, hand it to a `Chat` instance, and render `ChatWindow`:
 
 ```svelte
 <script lang="ts">
-	import { Chat, ChatWindow, createProvider } from '$lib';
+	import { Chat, ChatWindow, createProvider } from 'sveltechatkit';
 
 	const provider = createProvider({
 		id: 'openai',
@@ -83,8 +122,8 @@ Create a provider, hand it to a `Chat` instance, and render `ChatWindow`:
 Any object implementing `ChatProvider` works. Register it once and it becomes available through the same factory as the built-ins:
 
 ```ts
-import { ensureOk, registerProvider, sseStream } from '$lib';
-import type { ChatMessage, ChatProvider, ProviderConfig, SendMessageOptions } from '$lib';
+import { ensureOk, registerProvider, sseStream } from 'sveltechatkit';
+import type { ChatMessage, ChatProvider, ProviderConfig, SendMessageOptions } from 'sveltechatkit';
 
 class MyBackendProvider implements ChatProvider {
 	readonly id = 'my-backend';
@@ -115,6 +154,8 @@ For a complete walkthrough — including a working Anthropic provider — see [d
 ## Configuration
 
 The demo reads `PUBLIC_*` variables from `.env` (see `.env.example`). All are optional; with no `.env` at all the demo runs on the mock provider.
+
+When you consume the kit as a package, prefer building `ProviderConfig` objects explicitly (as in the usage snippet) — it's bundler-agnostic. The env-driven `defaultConfig` relies on Vite's `import.meta.env` and requires `envPrefix: ['VITE_', 'PUBLIC_']` in your Vite config; outside Vite it silently falls back to the built-in defaults.
 
 | Variable                  | Default                     | Description                                                                              |
 | ------------------------- | --------------------------- | ---------------------------------------------------------------------------------------- |
@@ -156,14 +197,14 @@ The demo app running on the built-in mock provider — no API key required.
                ┌───────────▼────────────┐
                │ ChatProvider interface │  AsyncGenerator<string>
                └───────────┬────────────┘
-       ┌─────────┬─────────┼──────────┬───────────┐
-       ▼         ▼         ▼          ▼           ▼
-    OpenAI-   Ollama     Dify      Custom       Mock
-    compat.                       endpoint   (no network)
-       │         │         │          │
-       ▼         ▼         ▼          ▼
-      SSE      NDJSON     SSE     SSE / text
-              (upstream chat APIs)
+     ┌─────────┬─────────┬─────────┼─────────┬────────────┐
+     ▼         ▼         ▼         ▼         ▼            ▼
+  OpenAI-   Ollama     Dify      n8n      Custom        Mock
+  compat.                               endpoint    (no network)
+     │         │         │         │         │
+     ▼         ▼         ▼         ▼         ▼
+    SSE      NDJSON     SSE     NDJSON   SSE / text
+                (upstream chat APIs)
 ```
 
 | Module                        | Purpose                                                                              |
@@ -184,9 +225,10 @@ The demo app running on the built-in mock provider — no API key required.
 - [ ] Vector DB / RAG integration helpers
 - [ ] Plugin system (message middleware, custom renderers)
 - [ ] More UI themes
+- [ ] Precompiled component CSS (use the kit without Tailwind)
 - [ ] File attachments
 - [ ] Function/tool-calling UI
-- [ ] Publish as an npm package
+- [x] Publish as an npm package
 
 ## Contributing
 

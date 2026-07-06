@@ -36,6 +36,8 @@ The transport helpers in `src/lib/chat/stream.ts` do the heavy lifting: `sseStre
 
 Create `src/lib/chat/providers/anthropic.ts`.
 
+> Contributing to the kit itself? Use the relative imports shown below. Building a provider inside your own app on the published package? Import everything from `'sveltechatkit'` instead — `ChatProviderError`, `ensureOk`, `sseStream`, and the types are all exported.
+
 Two Anthropic-specific details to handle:
 
 1. The Messages API takes the system prompt as a top-level `system` field, not as a message — so we split it out of the history.

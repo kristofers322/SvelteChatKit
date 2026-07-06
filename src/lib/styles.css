@@ -1,0 +1,123 @@
+/*
+ * SvelteChatKit stylesheet — ships with the package.
+ *
+ * Plain CSS on purpose: consumers import it directly
+ * (`import 'sveltechatkit/styles.css'`) without running it through
+ * Tailwind. It styles the markdown output (code blocks, inline code,
+ * tables) and provides the highlight.js theme. Dark variants follow
+ * `prefers-color-scheme`, matching the kit's media-based dark mode.
+ */
+
+/* ------------------------------------------------------------------ */
+/* Code blocks — always dark, in both color schemes                    */
+/* ------------------------------------------------------------------ */
+
+.prose pre {
+	border-radius: 0.5rem;
+	border: 1px solid #27272a; /* zinc-800 */
+	background-color: #09090b; /* zinc-950 */
+	font-size: 13px;
+	line-height: 1.625;
+}
+
+/*
+ * Inline-code colors are custom properties so class-based dark-mode apps
+ * (and themers) can override them. Defaults follow prefers-color-scheme;
+ * a `.dark` ancestor class also flips them.
+ */
+:root {
+	--sck-inline-code-bg: #f4f4f5; /* zinc-100 */
+	--sck-inline-code-fg: #27272a; /* zinc-800 */
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--sck-inline-code-bg: #27272a; /* zinc-800 */
+		--sck-inline-code-fg: #e4e4e7; /* zinc-200 */
+	}
+}
+
+:where(.dark, .dark *) {
+	--sck-inline-code-bg: #27272a;
+	--sck-inline-code-fg: #e4e4e7;
+}
+
+.prose :not(pre) > code {
+	border-radius: 0.25rem;
+	background-color: var(--sck-inline-code-bg);
+	padding: 0.125rem 0.375rem;
+	font-size: 0.85em;
+	font-weight: 400;
+	color: var(--sck-inline-code-fg);
+}
+
+.prose :not(pre) > code::before,
+.prose :not(pre) > code::after {
+	content: none;
+}
+
+/* GFM tables must scroll inside the bubble, not widen the message list */
+.prose table {
+	display: block;
+	max-width: 100%;
+	overflow-x: auto;
+}
+
+/* ------------------------------------------------------------------ */
+/* highlight.js theme — muted pastels on near-black, zinc-aligned      */
+/* ------------------------------------------------------------------ */
+
+.hljs {
+	color: #e4e4e7;
+}
+.hljs-comment,
+.hljs-quote,
+.hljs-meta {
+	color: #71717a;
+	font-style: italic;
+}
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-template-tag,
+.hljs-doctag {
+	color: #c4b5fd;
+}
+.hljs-string,
+.hljs-regexp,
+.hljs-addition,
+.hljs-attr {
+	color: #86efac;
+}
+.hljs-number,
+.hljs-literal,
+.hljs-deletion {
+	color: #fda4af;
+}
+.hljs-title,
+.hljs-title.class_,
+.hljs-title.function_,
+.hljs-name,
+.hljs-section {
+	color: #93c5fd;
+}
+.hljs-attribute,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-type,
+.hljs-symbol,
+.hljs-bullet {
+	color: #fcd34d;
+}
+.hljs-built_in,
+.hljs-builtin-name {
+	color: #67e8f9;
+}
+.hljs-emphasis {
+	font-style: italic;
+}
+.hljs-strong {
+	font-weight: 600;
+}
+.hljs-link {
+	text-decoration: underline;
+}

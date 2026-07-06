@@ -5,8 +5,8 @@ Thanks for helping out. Bug reports, new providers, UI polish, and docs improvem
 ## Dev setup
 
 ```bash
-git clone https://github.com/yourname/sveltechatkit.git
-cd sveltechatkit
+git clone https://github.com/kristofers322/SvelteChatKit.git
+cd SvelteChatKit
 npm install          # or: pnpm install
 cp .env.example .env # optional — the mock provider needs no config
 npm run dev
@@ -15,9 +15,10 @@ npm run dev
 Before opening a PR, make sure both pass clean:
 
 ```bash
-npm run check   # svelte-check + TypeScript
-npm run lint    # Prettier formatting check
-npm run build
+npm run check     # svelte-check + TypeScript
+npm run lint      # Prettier formatting check
+npm run build     # demo app build
+npm run package   # library build (svelte-package) + publint
 ```
 
 Node 20+ is required.
