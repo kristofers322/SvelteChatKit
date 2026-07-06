@@ -1,0 +1,19 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+ARG BACKEND_CUSTOM_URL
+ENV BACKEND_CUSTOM_URL=${BACKEND_CUSTOM_URL}
+ARG FRONTEND_CUSTOM_URL
+ENV FRONTEND_CUSTOM_URL=${FRONTEND_CUSTOM_URL}
+
+RUN npm run build
+
+EXPOSE ${FRONTEND_PORT:-5000}
+
+CMD ["node", "server.js"]

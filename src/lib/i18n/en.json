@@ -1,0 +1,42 @@
+{
+	"chat": {
+		"title": "Virtual assistant",
+		"closeChat": "Close chat",
+		"inputPlaceholder": "Type your message...",
+		"inputPlaceholderWait": "Please wait...",
+		"scrollToBottom": "Scroll to bottom",
+		"poweredBy": "Powered by"
+	},
+	"opening": {
+		"welcome": "Welcome to Holiday Best! I am your virtual assistant. How can I help you today?",
+		"interested": "Are you interested in:",
+		"bookHoliday": "Book a holiday",
+		"helpWithBooking": "Help with my booking",
+		"contactAgent": "Contact with agent"
+	},
+	"form": {
+		"title": "Contact Form",
+		"firstNameLabel": "First Name *",
+		"firstNamePlaceholder": "Your first name",
+		"lastNameLabel": "Last Name *",
+		"lastNamePlaceholder": "Your last name",
+		"emailLabel": "Email *",
+		"emailPlaceholder": "Your email address",
+		"phoneLabel": "Phone *",
+		"phonePlaceholder": "Your phone number",
+		"messageLabel": "Additional Message",
+		"messagePlaceholder": "Any additional information...",
+		"privacyText": "I have read and agree with the",
+		"privacyLink": "Privacy Policy",
+		"submitButton": "Send Contact Information",
+		"closeForm": "Close form"
+	},
+	"errors": {
+		"technicalError": "Sorry, a technical error occurred. We are working to resolve it. Please try again later.",
+		"unableToConnect": "Unable to connect to the service. Please try again later."
+	},
+	"chatIcon": {
+		"openChat": "Open chat",
+		"greeting": "Hi! How can we help you today?"
+	}
+}

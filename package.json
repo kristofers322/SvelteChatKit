@@ -1,0 +1,35 @@
+{
+	"name": "svelte-chat-widget",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"preview": "vite preview",
+		"backend": "node ./backend/server.js"
+	},
+	"devDependencies": {
+		"@sveltejs/vite-plugin-svelte": "^3.1.2",
+		"@tailwindcss/typography": "^0.5.15",
+		"autoprefixer": "^10.4.20",
+		"postcss": "^8.4.47",
+		"svelte": "^4.2.19",
+		"tailwindcss": "^3.4.11",
+		"vite": "^5.4.6"
+	},
+	"dependencies": {
+		"cors": "^2.8.5",
+		"country-codes-list": "^2.0.0",
+		"dify-client": "^2.3.2",
+		"dompurify": "^3.1.6",
+		"express": "^4.18.2",
+		"marked": "^14.1.2",
+		"svelte-i18n": "^4.0.1",
+		"svelte-markdown": "^0.4.1",
+		"uuid": "^10.0.0"
+	},
+	"resolutions": {
+		"@sveltejs/vite-plugin-svelte": "^3.1.2"
+	}
+}

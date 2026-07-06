@@ -1,0 +1,42 @@
+{
+	"chat": {
+		"title": "Virtuaaliassistentti",
+		"closeChat": "Sulje keskustelu",
+		"inputPlaceholder": "Kirjoita viestisi...",
+		"inputPlaceholderWait": "Odota hetki...",
+		"scrollToBottom": "Vierita alas",
+		"poweredBy": "Palvelun tarjoaa"
+	},
+	"opening": {
+		"welcome": "Tervetuloa Holiday Bestiin! Olen virtuaaliassistenttisi. Kuinka voin auttaa sinua tänään?",
+		"interested": "Oletko kiinnostunut:",
+		"bookHoliday": "Varaa loma",
+		"helpWithBooking": "Apua varaukseni kanssa",
+		"contactAgent": "Ota yhteyttä agenttiin"
+	},
+	"form": {
+		"title": "Yhteydenottolomake",
+		"firstNameLabel": "Etunimi *",
+		"firstNamePlaceholder": "Etunimesi",
+		"lastNameLabel": "Sukunimi *",
+		"lastNamePlaceholder": "Sukunimesi",
+		"emailLabel": "Sähköposti *",
+		"emailPlaceholder": "Sähköpostiosoitteesi",
+		"phoneLabel": "Puhelin *",
+		"phonePlaceholder": "Puhelinnumerosi",
+		"messageLabel": "Lisäviesti",
+		"messagePlaceholder": "Mahdolliset lisätiedot...",
+		"privacyText": "Olen lukenut ja hyväksyn",
+		"privacyLink": "Tietosuojakäytännön",
+		"submitButton": "Lähetä yhteystiedot",
+		"closeForm": "Sulje lomake"
+	},
+	"errors": {
+		"technicalError": "Pahoittelut, tapahtui tekninen virhe. Tyoskentelemme sen korjaamiseksi. Yrita myohemmin uudelleen.",
+		"unableToConnect": "Yhteyden muodostaminen palveluun epaonnistui. Yrita myohemmin uudelleen."
+	},
+	"chatIcon": {
+		"openChat": "Avaa keskustelu",
+		"greeting": "Hei! Kuinka voimme auttaa sinua tanaan?"
+	}
+}
