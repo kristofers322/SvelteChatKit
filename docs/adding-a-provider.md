@@ -22,6 +22,7 @@ Rules:
 - Pass `options.signal` to `fetch` and let `AbortError` propagate unwrapped. That's the stop button.
 - Throw `ChatProviderError` with a message a user can act on; don't swallow failures.
 - Never log the API key.
+- Messages may carry `attachments` (`{ name, mimeType, size, dataUrl }`). Send them if your backend can use them (see the built-ins for patterns: vision parts, multipart uploads, plain passthrough). Ignoring them is fine for text-only backends.
 
 Helpers in `stream.ts` do the boring parts: `sseStream` (SSE payloads, handles chunk splits), `lineStream` (NDJSON), `textStream` (raw text), `ensureOk` (throws a readable `ChatProviderError` on non-2xx).
 

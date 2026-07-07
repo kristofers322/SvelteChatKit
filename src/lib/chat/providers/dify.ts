@@ -1,5 +1,12 @@
-import type { ChatMessage, ChatProvider, ProviderConfig, SendMessageOptions } from '../types.js';
+import type {
+	ChatAttachment,
+	ChatMessage,
+	ChatProvider,
+	ProviderConfig,
+	SendMessageOptions
+} from '../types.js';
 import { ChatProviderError, generateId } from '../types.js';
+import { attachmentToBlob } from '../attachments.js';
 import { providerFetch, sseStream } from '../stream.js';
 
 const DIFY_USER_KEY = 'sveltechatkit:dify-user';
@@ -37,6 +44,28 @@ interface DifyEvent {
 	conversation_id?: unknown;
 	message?: unknown;
 	status?: unknown;
+}
+
+interface DifyFile {
+	type: 'image' | 'audio' | 'video' | 'document';
+	transfer_method: 'local_file';
+	upload_file_id: string;
+}
+
+// Dify validates the uploaded file against the declared type category.
+function difyFileType(mimeType: string): DifyFile['type'] {
+	if (mimeType.startsWith('image/')) return 'image';
+	if (mimeType.startsWith('audio/')) return 'audio';
+	if (mimeType.startsWith('video/')) return 'video';
+	return 'document';
+}
+
+function latestUserMessage(messages: ChatMessage[]): ChatMessage | null {
+	for (let i = messages.length - 1; i >= 0; i -= 1) {
+		const message = messages[i];
+		if (message && message.role === 'user') return message;
+	}
+	return null;
 }
 
 /**
@@ -79,40 +108,60 @@ export class DifyProvider implements ChatProvider {
 		messages: ChatMessage[],
 		options: SendMessageOptions = {}
 	): AsyncGenerator<string, void, unknown> {
+		// Uploads run once, OUTSIDE the retried stream() call: a 404 from the
+		// upload endpoint must not trigger the stale-conversation reset below,
+		// and the retry must not upload the same files twice.
+		const files = await this.uploadAttachments(messages, options.signal);
 		try {
-			yield* this.stream(messages, options);
+			yield* this.stream(messages, files, options);
 		} catch (error) {
 			// A persisted conversation id can go stale (deleted app-side);
-			// Dify answers 404. Start a fresh conversation and retry once,
-			// safe because the 404 arrives before anything is yielded.
+			// Dify answers 404 on /chat-messages. Start a fresh conversation
+			// and retry once, safe because nothing was yielded before the 404.
 			if (
 				error instanceof ChatProviderError &&
 				error.status === 404 &&
 				this.conversationId !== null
 			) {
 				this.reset();
-				yield* this.stream(messages, options);
+				yield* this.stream(messages, files, options);
 				return;
 			}
 			throw error;
 		}
 	}
 
+	// Only the latest user message's attachments are uploaded: Dify is
+	// conversation-based, so older attachments were sent in earlier turns.
+	private async uploadAttachments(
+		messages: ChatMessage[],
+		signal?: AbortSignal
+	): Promise<DifyFile[]> {
+		const attachments = latestUserMessage(messages)?.attachments ?? [];
+		if (attachments.length === 0) return [];
+		const user = this.getUserId();
+		const files: DifyFile[] = [];
+		for (const attachment of attachments) {
+			files.push({
+				type: difyFileType(attachment.mimeType),
+				transfer_method: 'local_file',
+				upload_file_id: await this.uploadAttachment(attachment, user, signal)
+			});
+		}
+		return files;
+	}
+
 	private async *stream(
 		messages: ChatMessage[],
+		files: DifyFile[],
 		options: SendMessageOptions = {}
 	): AsyncGenerator<string, void, unknown> {
-		let query = '';
-		for (let i = messages.length - 1; i >= 0; i -= 1) {
-			const message = messages[i];
-			if (message && message.role === 'user') {
-				query = message.content;
-				break;
-			}
-		}
-		if (!query) {
+		let query = latestUserMessage(messages)?.content ?? '';
+		if (!query && files.length === 0) {
 			throw new ChatProviderError(this.id, 'No user message to send.');
 		}
+		// Recent Dify versions reject an empty query even when files are sent.
+		if (!query) query = 'See the attached file(s).';
 
 		const headers: Record<string, string> = {
 			'Content-Type': 'application/json',
@@ -120,16 +169,19 @@ export class DifyProvider implements ChatProvider {
 		};
 		if (this.apiKey) headers['Authorization'] = `Bearer ${this.apiKey}`;
 
+		const body: Record<string, unknown> = {
+			inputs: {},
+			query,
+			response_mode: 'streaming',
+			conversation_id: this.conversationId ?? '',
+			user: this.getUserId()
+		};
+		if (files.length > 0) body['files'] = files;
+
 		const response = await providerFetch(this.id, `${this.baseUrl}/chat-messages`, {
 			method: 'POST',
 			headers,
-			body: JSON.stringify({
-				inputs: {},
-				query,
-				response_mode: 'streaming',
-				conversation_id: this.conversationId ?? '',
-				user: this.getUserId()
-			}),
+			body: JSON.stringify(body),
 			signal: options.signal
 		});
 
@@ -160,6 +212,55 @@ export class DifyProvider implements ChatProvider {
 				}
 			}
 		}
+	}
+
+	// Dify wants files uploaded ahead of the chat call; the returned file id is
+	// then referenced from the chat-messages body. No Content-Type header here:
+	// the browser sets the multipart boundary itself.
+	private async uploadAttachment(
+		attachment: ChatAttachment,
+		user: string,
+		signal?: AbortSignal
+	): Promise<string> {
+		const headers: Record<string, string> = {};
+		if (this.apiKey) headers['Authorization'] = `Bearer ${this.apiKey}`;
+
+		const formData = new FormData();
+		formData.append('file', attachmentToBlob(attachment), attachment.name);
+		formData.append('user', user);
+
+		let response: Response;
+		try {
+			response = await providerFetch(this.id, `${this.baseUrl}/files/upload`, {
+				method: 'POST',
+				headers,
+				body: formData,
+				signal
+			});
+		} catch (error) {
+			if (error instanceof Error && error.name === 'AbortError') throw error;
+			const detail = error instanceof Error ? error.message : String(error);
+			const status = error instanceof ChatProviderError ? error.status : undefined;
+			throw new ChatProviderError(
+				this.id,
+				`Uploading "${attachment.name}" failed: ${detail}`,
+				status
+			);
+		}
+
+		let uploadId: unknown;
+		try {
+			uploadId = ((await response.json()) as { id?: unknown }).id;
+		} catch {
+			uploadId = undefined;
+		}
+		if (typeof uploadId !== 'string' || uploadId === '') {
+			throw new ChatProviderError(
+				this.id,
+				`Uploading "${attachment.name}" failed: the server did not return a file id.`
+			);
+		}
+		return uploadId;
 	}
 
 	private getUserId(): string {

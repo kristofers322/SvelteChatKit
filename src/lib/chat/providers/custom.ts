@@ -4,7 +4,10 @@ import { providerFetch, sseStream, textStream } from '../stream.js';
 
 /**
  * Talks to your own HTTP endpoint (`baseUrl` is the full endpoint URL).
- * Sends `{ messages, model? }` as JSON and auto-detects the response format:
+ * Sends `{ messages, model? }` as JSON, where each message is
+ * `{ role, content }` plus, when the message has attachments, an
+ * `attachments` array of `{ name, mimeType, size, dataUrl }` objects.
+ * Auto-detects the response format:
  * `text/event-stream` responses are parsed as SSE (JSON payloads with a
  * `content`, `text`, or `delta` string field, `[DONE]` sentinel, or raw
  * text); anything else is streamed as plain text, which also covers
@@ -46,7 +49,18 @@ export class CustomEndpointProvider implements ChatProvider {
 		if (this.apiKey) headers['Authorization'] = `Bearer ${this.apiKey}`;
 
 		const body: Record<string, unknown> = {
-			messages: messages.map((message) => ({ role: message.role, content: message.content }))
+			messages: messages.map((message) => {
+				const entry: Record<string, unknown> = { role: message.role, content: message.content };
+				if (message.attachments && message.attachments.length > 0) {
+					entry['attachments'] = message.attachments.map(({ name, mimeType, size, dataUrl }) => ({
+						name,
+						mimeType,
+						size,
+						dataUrl
+					}));
+				}
+				return entry;
+			})
 		};
 		const model = options.model ?? this.model;
 		if (model) body['model'] = model;

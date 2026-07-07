@@ -21,6 +21,7 @@ One chat UI, any LLM. Swap between OpenAI, Ollama, Dify, n8n or your own API by 
 - One small `ChatProvider` interface. Your own backend takes about 20 lines
 - Chat history that survives reloads (localStorage)
 - Markdown with highlighted code blocks, sanitized
+- File attachments: pick or paste images and files, sent to providers that support them
 - Auto-scroll that follows the stream but leaves you alone when you scroll up
 - Errors show up in the UI instead of dying in the console
 - Dark mode, works on mobile, TypeScript strict
@@ -94,6 +95,21 @@ export default {
 ```
 
 If you'd rather build your own UI, skip `ChatWindow`. The `Chat` class gives you reactive `messages`, `status`, `error` and `busy`, plus `send()`, `stop()`, `clear()` and `setProvider()`.
+
+### Attachments
+
+The composer has a paperclip button, and you can paste images straight into it. Files are capped at 2MB each and 4 per message (both configurable via `ChatInput` props); history persists to localStorage, so keep attachments small. What each provider does with them:
+
+- `openai` sends images as vision content parts (needs a vision model)
+- `ollama` sends images to multimodal models like llava
+- `dify` uploads files first, then references them in the chat call
+- `n8n` switches to multipart form data, like the official n8n chat widget
+- `custom` passes `{ name, mimeType, size, dataUrl }` through in the JSON body
+- `mock` describes what you attached
+
+Programmatic use: `chat.send('what is this?', [await fileToAttachment(file)])`.
+
+Two things to know. Stateless providers (`openai`, `ollama`, `custom`) re-send earlier attachments with every following message, because the model needs them for context; keep files small or start a new chat when you're done with one. And persisted history lives in localStorage (about 5MB), so if a conversation outgrows it the kit keeps the text and drops attachment data from the saved copy; those attachments show as chips after a reload.
 
 ## Your own backend
 
@@ -175,7 +191,7 @@ One thing to know: `PUBLIC_*` vars end up in the client bundle, so anyone can re
 - [ ] Plugin system (message middleware, custom renderers)
 - [ ] More themes
 - [ ] Precompiled CSS so you can use the kit without Tailwind
-- [ ] File attachments
+- [x] File attachments
 - [ ] Tool-calling UI
 - [x] npm package
 

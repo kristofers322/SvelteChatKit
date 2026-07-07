@@ -1,11 +1,30 @@
 import type { ChatMessage, ChatProvider, ProviderConfig, SendMessageOptions } from '../types.js';
 import { ChatProviderError } from '../types.js';
+import { attachmentBase64, isImage } from '../attachments.js';
 import { lineStream, providerFetch } from '../stream.js';
 
 interface OllamaChunk {
 	message?: { content?: unknown };
 	done?: boolean;
 	error?: unknown;
+}
+
+// Ollama takes image attachments as raw base64 strings in `images`; non-image
+// attachments are noted in the text since the API has no slot for them.
+function toOllamaMessage(message: ChatMessage): Record<string, unknown> {
+	let content = message.content;
+	const images: string[] = [];
+	for (const attachment of message.attachments ?? []) {
+		if (isImage(attachment)) {
+			images.push(attachmentBase64(attachment));
+		} else {
+			const note = `[Attachment "${attachment.name}" (${attachment.mimeType}) omitted: this provider only sends images]`;
+			content = content === '' ? note : `${content}\n${note}`;
+		}
+	}
+	const result: Record<string, unknown> = { role: message.role, content };
+	if (images.length > 0) result['images'] = images;
+	return result;
 }
 
 /**
@@ -34,7 +53,7 @@ export class OllamaProvider implements ChatProvider {
 	): AsyncGenerator<string, void, unknown> {
 		const body: Record<string, unknown> = {
 			model: options.model ?? this.model,
-			messages: messages.map((message) => ({ role: message.role, content: message.content })),
+			messages: messages.map((message) => toOllamaMessage(message)),
 			stream: true
 		};
 		const modelOptions: Record<string, unknown> = {};

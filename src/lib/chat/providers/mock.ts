@@ -1,4 +1,11 @@
-import type { ChatMessage, ChatProvider, ProviderConfig, SendMessageOptions } from '../types.js';
+import type {
+	ChatAttachment,
+	ChatMessage,
+	ChatProvider,
+	ProviderConfig,
+	SendMessageOptions
+} from '../types.js';
+import { isImage } from '../attachments.js';
 
 const RESPONSES: readonly string[] = [
 	`Hi! I'm the **demo provider** built into SvelteChatKit. No API calls here, every reply is generated locally, so you can click around without any setup.
@@ -62,6 +69,32 @@ export async function POST({ request }) {
 Then set \`PUBLIC_CUSTOM_ENDPOINT=/api/chat\` and the kit streams straight from your own backend. That's the whole tour. From here on I'll start repeating myself!`
 ];
 
+function humanSize(bytes: number): string {
+	if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+	if (bytes >= 1024) return `${Math.round(bytes / 1024)} kB`;
+	return `${bytes} B`;
+}
+
+function attachmentResponse(attachments: ChatAttachment[]): string {
+	const intro =
+		attachments.length === 1
+			? 'Thanks! I received your attachment:'
+			: `Thanks! I received your ${attachments.length} attachments:`;
+	const items = attachments
+		.map(
+			(attachment) =>
+				`- **${attachment.name}** (${humanSize(attachment.size)}, ${
+					isImage(attachment) ? 'image' : 'file'
+				} of type \`${attachment.mimeType}\`)`
+		)
+		.join('\n');
+	return `${intro}
+
+${items}
+
+I'm the built-in demo provider, so I can't look inside files, but a real vision model would analyze them right here. Note how images render as thumbnails in the message bubble above, while other files appear as compact chips.`;
+}
+
 function wait(ms: number, signal?: AbortSignal): Promise<void> {
 	return new Promise((resolve) => {
 		if (signal?.aborted) {
@@ -102,8 +135,25 @@ export class MockProvider implements ChatProvider {
 		options: SendMessageOptions = {}
 	): AsyncGenerator<string, void, unknown> {
 		const signal = options.signal;
-		const text = RESPONSES[this.turn % RESPONSES.length] as string;
-		this.turn += 1;
+
+		let latest: ChatMessage | null = null;
+		for (let i = messages.length - 1; i >= 0; i -= 1) {
+			const message = messages[i];
+			if (message && message.role === 'user') {
+				latest = message;
+				break;
+			}
+		}
+
+		let text: string;
+		if (latest?.attachments && latest.attachments.length > 0) {
+			// Attachment replies sit outside the canned cycle so the tour
+			// resumes where it left off on the next plain message.
+			text = attachmentResponse(latest.attachments);
+		} else {
+			text = RESPONSES[this.turn % RESPONSES.length] as string;
+			this.turn += 1;
+		}
 
 		const tokens = text.match(/\S+\s*/g) ?? [text];
 		for (const token of tokens) {

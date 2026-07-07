@@ -1,10 +1,36 @@
 import type { ChatMessage, ChatProvider, ProviderConfig, SendMessageOptions } from '../types.js';
 import { ChatProviderError } from '../types.js';
+import { isImage } from '../attachments.js';
 import { providerFetch, sseStream } from '../stream.js';
 
 interface CompletionChunk {
 	choices?: { delta?: { content?: unknown } }[];
 	error?: { message?: unknown; code?: unknown };
+}
+
+type ContentPart =
+	{ type: 'text'; text: string } | { type: 'image_url'; image_url: { url: string } };
+
+// Messages without attachments keep plain string content so non-vision
+// OpenAI-compatible servers keep working; only attachment-bearing messages
+// use the content-part array form.
+function toContent(message: ChatMessage): string | ContentPart[] {
+	const attachments = message.attachments;
+	if (!attachments || attachments.length === 0) return message.content;
+
+	const parts: ContentPart[] = [];
+	if (message.content !== '') parts.push({ type: 'text', text: message.content });
+	for (const attachment of attachments) {
+		if (isImage(attachment)) {
+			parts.push({ type: 'image_url', image_url: { url: attachment.dataUrl } });
+		} else {
+			parts.push({
+				type: 'text',
+				text: `[Attachment "${attachment.name}" (${attachment.mimeType}) omitted: this provider only sends images]`
+			});
+		}
+	}
+	return parts;
 }
 
 /**
@@ -41,7 +67,7 @@ export class OpenAICompatibleProvider implements ChatProvider {
 
 		const body: Record<string, unknown> = {
 			model: options.model ?? this.model,
-			messages: messages.map((message) => ({ role: message.role, content: message.content })),
+			messages: messages.map((message) => ({ role: message.role, content: toContent(message) })),
 			stream: true
 		};
 		if (options.temperature !== undefined) body['temperature'] = options.temperature;

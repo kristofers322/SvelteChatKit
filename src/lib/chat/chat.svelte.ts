@@ -1,4 +1,4 @@
-import type { ChatMessage, ChatProvider, SendMessageOptions } from './types.js';
+import type { ChatAttachment, ChatMessage, ChatProvider, SendMessageOptions } from './types.js';
 import { generateId } from './types.js';
 import { clearMessages, loadMessages, saveMessages } from './storage.js';
 
@@ -28,6 +28,7 @@ export class Chat {
 
 	#controller: AbortController | null = null;
 	#persistTimer: ReturnType<typeof setTimeout> | null = null;
+	#persistDegraded = false;
 	readonly #storageKey: string | null;
 	readonly #systemPrompt?: string;
 	readonly #model?: string;
@@ -50,20 +51,30 @@ export class Chat {
 		return this.#isBusy;
 	}
 
-	/** Appends a user message and streams the assistant reply. No-op if busy or text is blank. */
-	async send(text: string): Promise<void> {
+	/** Appends a user message and streams the assistant reply. No-op if busy, or if text is blank and there are no attachments. */
+	async send(text: string, attachments?: ChatAttachment[]): Promise<void> {
 		const content = text.trim();
-		if (this.busy || content === '') return;
+		const attached = attachments && attachments.length > 0 ? [...attachments] : undefined;
+		if (this.busy || (content === '' && !attached)) return;
 
 		this.error = null;
 		const controller = new AbortController();
 		this.#controller = controller;
 
 		const assistantId = generateId();
-		this.messages.push(
-			{ id: generateId(), role: 'user', content, createdAt: Date.now() },
-			{ id: assistantId, role: 'assistant', content: '', createdAt: Date.now() }
-		);
+		const userMessage: ChatMessage = {
+			id: generateId(),
+			role: 'user',
+			content,
+			createdAt: Date.now()
+		};
+		if (attached) userMessage.attachments = attached;
+		this.messages.push(userMessage, {
+			id: assistantId,
+			role: 'assistant',
+			content: '',
+			createdAt: Date.now()
+		});
 		this.status = 'streaming';
 		this.#commit();
 
@@ -77,13 +88,18 @@ export class Chat {
 			});
 		}
 		for (const message of this.messages) {
-			if (message.error || message.content === '' || message.id === assistantId) continue;
-			history.push({
+			if (message.error || message.id === assistantId) continue;
+			const messageAttachments = message.attachments;
+			const hasAttachments = messageAttachments !== undefined && messageAttachments.length > 0;
+			if (message.content === '' && !hasAttachments) continue;
+			const entry: ChatMessage = {
 				id: message.id,
 				role: message.role,
 				content: message.content,
 				createdAt: message.createdAt
-			});
+			};
+			if (hasAttachments) entry.attachments = messageAttachments;
+			history.push(entry);
 		}
 
 		const assistant = this.messages[this.messages.length - 1] as ChatMessage;
@@ -139,6 +155,7 @@ export class Chat {
 		this.#controller?.abort();
 		this.#controller = null;
 		this.#cancelScheduledPersist();
+		this.#persistDegraded = false;
 		this.messages = [];
 		this.status = 'idle';
 		this.error = null;
@@ -154,19 +171,32 @@ export class Chat {
 
 	#commit(): void {
 		this.#cancelScheduledPersist();
-		if (this.#storageKey) saveMessages(this.#storageKey, this.messages);
+		if (this.#storageKey) this.#persist(this.#storageKey);
 		this.#onUpdate?.(this.messages);
+	}
+
+	#persist(key: string): void {
+		const ok = saveMessages(key, this.messages);
+		if (!ok && !this.#persistDegraded) {
+			console.warn(
+				'sveltechatkit: history no longer fits localStorage; attachment data was dropped from the persisted copy.'
+			);
+		}
+		this.#persistDegraded = !ok;
 	}
 
 	// Persisting the full history on every streamed chunk is O(history) of
 	// synchronous work per token; a trailing throttle keeps crash-resilience
 	// without competing with rendering. Terminal states persist immediately.
+	// Once a save has degraded (quota), streaming persists pause until a
+	// terminal commit succeeds again, to avoid re-serializing megabytes of
+	// attachment data every tick for nothing.
 	#schedulePersist(): void {
 		const key = this.#storageKey;
-		if (!key || this.#persistTimer !== null) return;
+		if (!key || this.#persistDegraded || this.#persistTimer !== null) return;
 		this.#persistTimer = setTimeout(() => {
 			this.#persistTimer = null;
-			saveMessages(key, this.messages);
+			this.#persist(key);
 		}, 250);
 	}
 

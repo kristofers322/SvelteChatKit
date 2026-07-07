@@ -1,10 +1,24 @@
 export type ChatRole = 'system' | 'user' | 'assistant';
 
+export interface ChatAttachment {
+	id: string;
+	/** Original file name, e.g. "invoice.pdf". */
+	name: string;
+	/** MIME type, e.g. "image/png". */
+	mimeType: string;
+	/** Size in bytes. */
+	size: number;
+	/** data: URL with base64-encoded content. */
+	dataUrl: string;
+}
+
 export interface ChatMessage {
 	id: string;
 	role: ChatRole;
 	content: string;
 	createdAt: number;
+	/** Files attached to this message (usually on user messages). */
+	attachments?: ChatAttachment[];
 	/** Set when the message failed to complete (aborted messages are not errors). */
 	error?: string;
 }

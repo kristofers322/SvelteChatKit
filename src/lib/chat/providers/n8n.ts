@@ -1,5 +1,6 @@
 import type { ChatMessage, ChatProvider, ProviderConfig, SendMessageOptions } from '../types.js';
 import { ChatProviderError, generateId } from '../types.js';
+import { attachmentToBlob } from '../attachments.js';
 import { lineStream, providerFetch } from '../stream.js';
 
 const SESSION_KEY_PREFIX = 'sveltechatkit:n8n-session:';
@@ -107,39 +108,66 @@ export class N8nProvider implements ChatProvider {
 			);
 		}
 
-		let chatInput = '';
+		let latest: ChatMessage | null = null;
 		for (let i = messages.length - 1; i >= 0; i -= 1) {
 			const message = messages[i];
 			if (message && message.role === 'user') {
-				chatInput = message.content;
+				latest = message;
 				break;
 			}
 		}
-		if (!chatInput) {
+		const chatInput = latest?.content ?? '';
+		const attachments = latest?.attachments ?? [];
+		if (!chatInput && attachments.length === 0) {
 			throw new ChatProviderError(this.id, 'No user message to send.');
 		}
-
-		const headers: Record<string, string> = {
-			'Content-Type': 'application/json',
-			...this.headers
-		};
-		if (this.apiKey) headers['Authorization'] = `Bearer ${this.apiKey}`;
 
 		if (!this.sessionId) {
 			this.sessionId = generateId();
 			writeStorage(this.sessionKey, this.sessionId);
 		}
+		const sessionId = this.sessionId;
 
-		const response = await providerFetch(this.id, this.webhookUrl, {
-			method: 'POST',
-			headers,
-			body: JSON.stringify({
-				action: 'sendMessage',
-				sessionId: this.sessionId,
-				chatInput
-			}),
-			signal: options.signal
-		});
+		let response: Response;
+		if (attachments.length > 0) {
+			// Attachments go as multipart form data, mirroring the official
+			// @n8n/chat client. No Content-Type header here: the browser sets
+			// the multipart boundary itself.
+			const headers: Record<string, string> = { ...this.headers };
+			if (this.apiKey) headers['Authorization'] = `Bearer ${this.apiKey}`;
+
+			const formData = new FormData();
+			formData.append('action', 'sendMessage');
+			formData.append('sessionId', sessionId);
+			formData.append('chatInput', chatInput);
+			for (const attachment of attachments) {
+				formData.append('files', attachmentToBlob(attachment), attachment.name);
+			}
+
+			response = await providerFetch(this.id, this.webhookUrl, {
+				method: 'POST',
+				headers,
+				body: formData,
+				signal: options.signal
+			});
+		} else {
+			const headers: Record<string, string> = {
+				'Content-Type': 'application/json',
+				...this.headers
+			};
+			if (this.apiKey) headers['Authorization'] = `Bearer ${this.apiKey}`;
+
+			response = await providerFetch(this.id, this.webhookUrl, {
+				method: 'POST',
+				headers,
+				body: JSON.stringify({
+					action: 'sendMessage',
+					sessionId,
+					chatInput
+				}),
+				signal: options.signal
+			});
+		}
 
 		const contentType = response.headers.get('content-type') ?? '';
 		if (contentType.includes('application/json') && !contentType.includes('json-lines')) {

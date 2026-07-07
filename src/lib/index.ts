@@ -4,11 +4,21 @@
 export type {
 	ChatRole,
 	ChatMessage,
+	ChatAttachment,
 	SendMessageOptions,
 	ChatProvider,
 	ProviderConfig
 } from './chat/types.js';
 export { ChatProviderError, generateId } from './chat/types.js';
+
+// Attachments
+export {
+	fileToAttachment,
+	attachmentToBlob,
+	attachmentBase64,
+	isImage,
+	MAX_ATTACHMENT_BYTES
+} from './chat/attachments.js';
 
 // Configuration
 export { defineChatKitConfig, defaultConfig, type ChatKitConfig } from './chat/config.js';
