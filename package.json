@@ -1,6 +1,6 @@
 {
 	"name": "sveltechatkit",
-	"version": "0.1.1",
+	"version": "0.2.0",
 	"description": "A universal, provider-agnostic AI chat UI kit for SvelteKit — streaming responses, markdown rendering, and a clean provider abstraction for OpenAI-compatible APIs, Ollama, Dify, n8n, and custom backends.",
 	"license": "MIT",
 	"repository": {
